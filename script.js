@@ -1,99 +1,73 @@
-const API_KEY = "8b829a99b594380ca06cbeb3ba6ae71c";
-
-// Dark Mode
-function toggleMode() {
-    document.body.classList.toggle("light-mode");
-    document.body.classList.toggle("dark-mode");
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  transition: 0.4s;
 }
 
-// Language
-function changeLang() {
-    let lang = document.getElementById("language").value;
-    document.querySelector("h1").innerText =
-        lang === "hi" ? "🌧️ रेनस्केप" : "🌧️ RainScape";
+.dark-mode {
+  color: white;
 }
 
-// Weather
-async function checkWeather() {
-    let city = document.getElementById("locationInput").value;
-    let loader = document.getElementById("loader");
-
-    loader.style.display = "block";
-
-    let res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`);
-    let data = await res.json();
-
-    loader.style.display = "none";
-
-    let temp = data.main.temp;
-    let condition = data.weather[0].main.toLowerCase();
-
-    document.getElementById("weather").innerHTML = `🌡️ ${temp}°C | ${condition}`;
-
-    let alertBox = document.getElementById("alertBox");
-    let riskBar = document.getElementById("riskBar");
-
-    if (condition.includes("rain")) {
-        alertBox.innerHTML = "⚠️ High Waterlogging Risk";
-        alertBox.style.background = "red";
-        riskBar.style.width = "90%";
-        riskBar.style.background = "red";
-    } else if (condition.includes("cloud")) {
-        alertBox.innerHTML = "⚠️ Moderate Risk";
-        alertBox.style.background = "orange";
-        riskBar.style.width = "60%";
-        riskBar.style.background = "orange";
-    } else {
-        alertBox.innerHTML = "✅ Safe";
-        alertBox.style.background = "green";
-        riskBar.style.width = "30%";
-        riskBar.style.background = "green";
-    }
-
-    document.getElementById("suggestion").innerHTML = "Avoid low-lying areas.";
-
-    updateMap(city);
+.light-mode {
+  background: #f1f5f9;
+  color: black;
 }
 
-// Map
-let map = L.map('map').setView([28.6139, 77.2090], 10);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-function updateMap(city) {
-    if (city.toLowerCase() === "delhi")
-        map.setView([28.6139, 77.2090], 12);
+.glass {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
 }
 
-// Geo
-function getLocation() {
-    navigator.geolocation.getCurrentPosition(() => {
-        document.getElementById("locationInput").value = "Delhi";
-    });
+button {
+  transition: all 0.3s ease;
 }
 
-// Voice
-function startVoice() {
-    let rec = new webkitSpeechRecognition();
-    rec.onresult = e => {
-        document.getElementById("locationInput").value = e.results[0][0].transcript;
-    };
-    rec.start();
+button:hover {
+  transform: scale(1.08);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
-// Chatbot
-function toggleChat() {
-    document.getElementById("chatWindow").classList.toggle("hidden");
+#map {
+  height: 350px;
+  border-radius: 20px;
 }
 
-function sendMessage() {
-    let input = document.getElementById("chatInput").value.toLowerCase();
-    let chatbox = document.getElementById("chatbox");
+.loader {
+  border: 4px solid #ccc;
+  border-top: 4px solid #3b82f6;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  animation: spin 1s linear infinite;
+  margin: auto;
+  display: none;
+}
 
-    chatbox.innerHTML += `<div>You: ${input}</div>`;
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
 
-    let reply = "Ask about weather!";
-    if (input.includes("rain")) reply = "🌧️ Rain alert!";
-    if (input.includes("safe")) reply = "✅ Safe conditions";
+#riskBar {
+  height: 100%;
+  width: 0%;
+  border-radius: 10px;
+  transition: 0.5s;
+}
 
-    chatbox.innerHTML += `<div>Bot: ${reply}</div>`;
+.chatbot {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 300px;
+}
+
+.chat-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
 }
