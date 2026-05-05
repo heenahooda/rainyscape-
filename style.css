@@ -1,201 +1,547 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RainScape Pro | Ultra</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&family=Pacifico&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.9.6/lottie.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-<canvas id="rainCanvas"></canvas>
-<!-- Floating sparkles for login page -->
-<div id="sparkles-container"></div>
-
-<!-- LOGIN PAGE -->
-<div id="loginPage">
-
-    <!-- TOP HERO AREA (30%) -->
-    <div class="login-hero">
-        <div class="hero-rain-drops" id="heroRain"></div>
-        <div class="hero-content">
-            <div class="logo-icon">🌧️</div>
-            <h1 class="hero-title">RainScape</h1>
-            <p class="hero-subtitle">Your Smart Weather Companion</p>
-            <div class="hero-tags">
-                <span class="tag">🌍 Real-time</span>
-                <span class="tag">⚡ Smart Alerts</span>
-                <span class="tag">🛡️ Safety First</span>
-            </div>
-        </div>
-        <!-- Animated clouds -->
-        <div class="cloud cloud-1">☁️</div>
-        <div class="cloud cloud-2">⛅</div>
-        <div class="cloud cloud-3">🌤️</div>
-        <!-- Floating drops -->
-        <div class="hero-drop drop-a">💧</div>
-        <div class="hero-drop drop-b">💧</div>
-        <div class="hero-drop drop-c">💧</div>
-    </div>
-
-    <!-- BOTTOM FORM AREA (70%) -->
-    <div class="login-form-area">
-        <div class="glass-morphism login-card">
-            <div class="card-welcome">
-                <span class="wave-emoji">👋</span>
-                <h2 class="welcome-text">Welcome Back!</h2>
-                <p class="welcome-sub">Sign in to get your weather updates</p>
-            </div>
-
-            <div class="input-group">
-                <span class="input-icon">👤</span>
-                <input id="name" type="text" placeholder="Your Name" class="styled-input">
-            </div>
-            <div class="input-group">
-                <span class="input-icon">📧</span>
-                <input id="contact" type="text" placeholder="Email / Phone" class="styled-input">
-            </div>
-
-            <button onclick="sendOTP()" class="btn-primary w-full my-2 btn-otp">
-                <span>✉️ Send OTP</span>
-                <div class="btn-shine"></div>
-            </button>
-
-            <div class="otp-section" id="otpSection">
-                <div class="input-group">
-                    <span class="input-icon">🔐</span>
-                    <input id="otp" type="text" placeholder="Enter OTP (hint: 1234)" class="styled-input">
-                </div>
-                <button onclick="login()" class="btn-glow w-full mt-2">
-                    <span>🚀 Let's Go!</span>
-                    <div class="btn-shine"></div>
-                </button>
-            </div>
-
-            <p class="login-footer">Secured with 💙 by RainScape Pro</p>
-        </div>
-    </div>
-</div>
-
-<!-- MAIN APP -->
-<div id="app" class="hidden">
-    <nav class="navbar glass">
-        <div class="flex items-center gap-2">
-            <span class="text-2xl nav-logo">🌧️</span>
-            <h1 id="navTitle" class="font-bold text-xl">RainScape</h1>
-        </div>
-        <div class="flex gap-4 items-center">
-            <div id="safety-tracker" class="progress-circle">
-                <span id="safety-text">30% Safe</span>
-            </div>
-            <select id="language" onchange="changeLang()" class="bg-slate-800 text-white rounded px-2 py-1">
-                <option value="en">English</option>
-                <option value="hi">हिंदी (Hindi)</option>
-                <option value="es">Español (Spanish)</option>
-                <option value="fr">Français (French)</option>
-                <option value="de">Deutsch (German)</option>
-                <option value="zh">中文 (Chinese)</option>
-                <option value="ja">日本語 (Japanese)</option>
-                <option value="ru">Русский (Russian)</option>
-                <option value="ar">العربية (Arabic)</option>
-                <option value="pt">Português (Portuguese)</option>
-            </select>
-        </div>
-    </nav>
-
-    <div class="main-container">
-        <div class="sidebar">
-            <div class="card neu">
-                <div id="lottie-weather" class="h-32 mx-auto"></div>
-                <h2 id="heading" class="text-lg font-semibold mb-2">Check Weather</h2>
-                <div class="flex gap-2">
-                    <input id="locationInput" placeholder="Enter city..." class="styled-input mb-0">
-                    <button onclick="startVoice()" class="btn-icon">🎤</button>
-                </div>
-                <div class="flex gap-2 mt-4">
-                    <button onclick="checkWeather()" id="checkBtn" class="btn-primary flex-1">Check</button>
-                    <button onclick="getLocation()" class="btn-secondary">📍</button>
-                </div>
-                <div id="weather" class="text-3xl font-bold mt-4"></div>
-                <div id="alertBox" class="mt-2 text-sm font-medium"></div>
-                <div class="risk-container mt-4"><div id="riskBar"></div></div>
-                <div id="suggestion" class="mt-4 italic text-sm text-slate-300"></div>
-            </div>
-            <div class="card glass mt-4 h-48 overflow-hidden relative" id="globe-container"></div>
-        </div>
-
-        <div class="content">
-            <div id="map"></div>
-            <div class="map-controls glass p-2 mt-2 flex gap-4">
-                <button id="heatBtn" onclick="toggleHeatmap()" class="btn-action bg-red-500/20 border-red-500/50">🔥 Flood Heatmap</button>
-                <button id="reportBtn" onclick="reportRain()" class="btn-action bg-blue-500/20 border-blue-500/50">📡 Live Report</button>
-            </div>
-        </div>
-    </div>
-
-    <button class="sos-fab" onclick="triggerSOS()">SOS</button>
-    <button class="chat-toggle" onclick="toggleChat()">💬</button>
-    <div id="chatWindow" class="chatbot glass-morphism hidden">
-        <div id="chatHeader" class="chat-header">RainyBot 🤖</div>
-        <div id="chatbox" class="h-48 overflow-y-auto p-2"></div>
-        <div class="flex gap-1 p-2 border-t border-white/10">
-            <input id="chatInput" placeholder="Ask something..." class="styled-input-small">
-            <button onclick="sendMessage()" class="bg-blue-600 px-3 rounded">➔</button>
-        </div>
-    </div>
-</div>
-
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="script.js"></script>
-
-<!-- Login page enhancements -->
-<script>
-// Create floating sparkles
-function createSparkles() {
-    const container = document.getElementById('sparkles-container');
-    const emojis = ['✨','⭐','💫','🌟','💧','❄️','🌈'];
-    for(let i = 0; i < 18; i++) {
-        const s = document.createElement('div');
-        s.className = 'sparkle';
-        s.innerText = emojis[Math.floor(Math.random() * emojis.length)];
-        s.style.left = Math.random() * 100 + 'vw';
-        s.style.top = Math.random() * 100 + 'vh';
-        s.style.animationDelay = (Math.random() * 4) + 's';
-        s.style.animationDuration = (3 + Math.random() * 4) + 's';
-        s.style.fontSize = (10 + Math.random() * 14) + 'px';
-        container.appendChild(s);
-    }
+:root { 
+    --bg-color: #0f172a; 
+    --card-bg: #1e293b; 
+    --text-main: #ffffff; 
+    --accent: #3b82f6;
+    --hero-from: #1a1a4e;
+    --hero-to: #0f3460;
 }
 
-// Create animated rain drops in hero area
-function createHeroRain() {
-    const hero = document.getElementById('heroRain');
-    for(let i = 0; i < 20; i++) {
-        const d = document.createElement('div');
-        d.className = 'hero-raindrop';
-        d.style.left = Math.random() * 100 + '%';
-        d.style.animationDelay = (Math.random() * 2) + 's';
-        d.style.animationDuration = (0.8 + Math.random() * 0.8) + 's';
-        hero.appendChild(d);
-    }
+body { 
+    margin: 0; 
+    font-family: 'Poppins', sans-serif; 
+    background: var(--bg-color); 
+    color: var(--text-main); 
+    overflow: hidden; 
 }
 
-// Show OTP section with animation after sendOTP
-const origSendOTP = window.sendOTP;
-window.sendOTP = function() {
-    alert("OTP: 1234 (demo mode 🎉)");
-    const section = document.getElementById('otpSection');
-    section.classList.add('show');
+/* ============================================
+   LOGIN PAGE — FULL LAYOUT
+   ============================================ */
+
+#loginPage {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    z-index: 200;
+    background: linear-gradient(160deg, #0d1b4b 0%, #0a1628 50%, #0f172a 100%);
+    overflow: hidden;
 }
 
-createSparkles();
-createHeroRain();
-</script>
-</body>
-</html>
+/* ---- HERO TOP AREA (30%) ---- */
+.login-hero {
+    position: relative;
+    height: 32vh;
+    min-height: 200px;
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 30%, #1d4ed8 60%, #2563eb 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 0 0 40px 40px;
+    box-shadow: 0 12px 40px rgba(37,99,235,0.4);
+}
+
+.login-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+        radial-gradient(ellipse at 20% 50%, rgba(99,179,237,0.15) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(147,197,253,0.1) 0%, transparent 50%);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 5;
+    text-align: center;
+    padding: 0 20px;
+}
+
+.logo-icon {
+    font-size: 3rem;
+    display: block;
+    animation: float 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 20px rgba(147,197,253,0.8));
+}
+
+.hero-title {
+    font-family: 'Pacifico', cursive;
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    color: #fff;
+    margin: 4px 0;
+    text-shadow: 0 0 30px rgba(147,197,253,0.6), 0 4px 12px rgba(0,0,0,0.4);
+    letter-spacing: 2px;
+    animation: titleGlow 2s ease-in-out infinite alternate;
+}
+
+.hero-subtitle {
+    font-size: 0.9rem;
+    color: rgba(219,234,254,0.9);
+    margin: 4px 0 10px;
+    font-weight: 300;
+    letter-spacing: 1px;
+}
+
+.hero-tags {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.tag {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #dbeafe;
+    animation: tagPop 0.5s ease backwards;
+}
+.tag:nth-child(1) { animation-delay: 0.2s; }
+.tag:nth-child(2) { animation-delay: 0.4s; }
+.tag:nth-child(3) { animation-delay: 0.6s; }
+
+/* Floating clouds */
+.cloud {
+    position: absolute;
+    font-size: 2.5rem;
+    opacity: 0.35;
+    animation: cloudDrift linear infinite;
+    pointer-events: none;
+}
+.cloud-1 { top: 15%; left: -60px; animation-duration: 14s; animation-delay: 0s; }
+.cloud-2 { top: 55%; left: -60px; animation-duration: 18s; animation-delay: 4s; font-size: 2rem; }
+.cloud-3 { top: 30%; left: -60px; animation-duration: 22s; animation-delay: 8s; font-size: 1.8rem; }
+
+/* Hero rain drops */
+.hero-rain-drops { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+.hero-raindrop {
+    position: absolute;
+    top: -10px;
+    width: 2px;
+    height: 14px;
+    background: linear-gradient(to bottom, transparent, rgba(147,197,253,0.7));
+    border-radius: 2px;
+    animation: heroRainFall linear infinite;
+}
+
+/* Hero floating drops */
+.hero-drop {
+    position: absolute;
+    font-size: 1.2rem;
+    opacity: 0.5;
+    animation: dropFloat 3s ease-in-out infinite;
+    pointer-events: none;
+}
+.drop-a { top: 20%; right: 15%; animation-delay: 0s; }
+.drop-b { top: 60%; right: 8%; animation-delay: 1s; }
+.drop-c { top: 40%; left: 8%; animation-delay: 2s; }
+
+/* ---- FORM BOTTOM AREA (70%) ---- */
+.login-form-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 400px;
+    padding: 28px 28px 20px;
+    border-radius: 24px;
+    background: rgba(30, 41, 59, 0.85) !important;
+    border: 1px solid rgba(99,179,237,0.2) !important;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08);
+    backdrop-filter: blur(20px);
+    animation: cardSlideUp 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+.card-welcome {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.wave-emoji {
+    display: inline-block;
+    font-size: 2rem;
+    animation: wave 1.5s ease-in-out infinite;
+    transform-origin: 70% 70%;
+}
+
+.welcome-text {
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: #fff;
+    margin: 6px 0 4px;
+}
+
+.welcome-sub {
+    font-size: 0.78rem;
+    color: rgba(148,163,184,0.9);
+    margin: 0;
+}
+
+/* Input groups */
+.input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 0;
+}
+
+.input-icon {
+    position: absolute;
+    left: 14px;
+    font-size: 1rem;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.input-group .styled-input {
+    padding-left: 42px !important;
+}
+
+/* OTP section (hidden until OTP sent) */
+.otp-section {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s ease;
+    opacity: 0;
+}
+.otp-section.show {
+    max-height: 200px;
+    opacity: 1;
+}
+
+/* Buttons */
+.btn-otp {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 20px rgba(59,130,246,0.4);
+}
+.btn-otp:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(59,130,246,0.5);
+}
+
+.btn-glow {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 20px rgba(16,185,129,0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+    width: 100%;
+    cursor: pointer;
+    border: none;
+}
+.btn-glow:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(16,185,129,0.5);
+}
+
+.btn-shine {
+    position: absolute;
+    top: 0; left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+    transform: skewX(-15deg);
+    animation: shine 3s ease-in-out infinite;
+}
+
+.login-footer {
+    text-align: center;
+    font-size: 0.7rem;
+    color: rgba(100,116,139,0.8);
+    margin-top: 16px;
+    margin-bottom: 0;
+}
+
+/* ============================================
+   FIXED INPUTS (global)
+   ============================================ */
+.styled-input { 
+    width: 100%; 
+    padding: 12px 12px 12px 12px; 
+    margin: 8px 0; 
+    border-radius: 12px; 
+    border: 1px solid rgba(255,255,255,0.1); 
+    background: rgba(255,255,255,0.95) !important; 
+    color: #1e293b !important; 
+    font-weight: 500;
+    font-family: 'Poppins', sans-serif;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    box-sizing: border-box;
+}
+.styled-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+}
+
+.styled-input-small { 
+    width: 100%; 
+    padding: 8px; 
+    border-radius: 8px; 
+    background: rgba(255,255,255,0.1); 
+    color: white; 
+    border: 1px solid rgba(255,255,255,0.2); 
+    font-family: 'Poppins', sans-serif;
+}
+
+/* ============================================
+   FLOATING SPARKLES
+   ============================================ */
+#sparkles-container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 150;
+}
+.sparkle {
+    position: absolute;
+    animation: sparkleFloat ease-in-out infinite;
+    opacity: 0.6;
+}
+
+/* ============================================
+   MAIN APP UI
+   ============================================ */
+.glass-morphism { 
+    background: rgba(255, 255, 255, 0.05); 
+    backdrop-filter: blur(15px); 
+    border: 1px solid rgba(255,255,255,0.1); 
+    border-radius: 20px; 
+}
+.neu { 
+    background: var(--card-bg); 
+    box-shadow: 10px 10px 20px #080d18, -10px -10px 20px #1c2b4a; 
+    border-radius: 20px; 
+    padding: 20px; 
+}
+.btn-primary { 
+    background: var(--accent); 
+    color: white; 
+    padding: 10px; 
+    border-radius: 12px; 
+    font-weight: bold; 
+    cursor: pointer;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(59,130,246,0.4);
+}
+.btn-icon, .btn-secondary { 
+    background: #334155; 
+    padding: 10px; 
+    border-radius: 12px; 
+    cursor: pointer;
+    border: none;
+    color: white;
+    transition: background 0.2s;
+}
+.btn-icon:hover, .btn-secondary:hover { background: #475569; }
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    background: rgba(15,23,42,0.9);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(20px);
+}
+
+.nav-logo { animation: float 3s ease-in-out infinite; display: inline-block; }
+
+/* Layout */
+.main-container { 
+    display: grid; 
+    grid-template-columns: 350px 1fr; 
+    gap: 20px; 
+    padding: 20px; 
+    height: calc(100vh - 80px); 
+}
+#map { 
+    height: 100%; 
+    border-radius: 24px; 
+    border: 4px solid rgba(255,255,255,0.1); 
+}
+
+.btn-action {
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: 1px solid;
+    color: white;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    transition: transform 0.2s, opacity 0.2s;
+}
+.btn-action:hover { transform: translateY(-1px); opacity: 0.9; }
+
+.chat-header {
+    background: rgba(37,99,235,0.3);
+    padding: 10px 14px;
+    font-weight: 700;
+    border-radius: 20px 20px 0 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Features */
+#rainCanvas { 
+    position: fixed; 
+    top: 0; left: 0; 
+    width: 100%; height: 100%; 
+    pointer-events: none; 
+    z-index: 100; 
+    opacity: 0; 
+    transition: opacity 1s ease;
+}
+.sos-fab { 
+    position: fixed; 
+    bottom: 100px; right: 25px; 
+    width: 50px; height: 50px; 
+    background: linear-gradient(135deg, #ef4444, #dc2626); 
+    border-radius: 50%; 
+    font-weight: bold; 
+    z-index: 1000; 
+    cursor: pointer;
+    border: none;
+    color: white;
+    box-shadow: 0 4px 20px rgba(239,68,68,0.5);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.sos-fab:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 30px rgba(239,68,68,0.7);
+}
+.chat-toggle { 
+    position: fixed; 
+    bottom: 25px; right: 25px; 
+    width: 60px; height: 60px; 
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
+    border-radius: 50%; 
+    z-index: 1000; 
+    cursor: pointer;
+    border: none;
+    font-size: 1.4rem;
+    box-shadow: 0 4px 20px rgba(59,130,246,0.5);
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.chat-toggle:hover { transform: scale(1.15) rotate(-10deg); }
+.chatbot { 
+    position: fixed; 
+    bottom: 100px; right: 25px; 
+    width: 280px; 
+    z-index: 1001; 
+    border-radius: 20px;
+    overflow: hidden;
+}
+.risk-container { 
+    height: 10px; 
+    background: #334155; 
+    border-radius: 5px; 
+    overflow: hidden; 
+}
+#riskBar { 
+    height: 100%; 
+    width: 0%; 
+    transition: width 1s ease; 
+    border-radius: 5px;
+}
+.progress-circle { 
+    font-size: 12px; 
+    font-weight: bold; 
+    color: #10b981; 
+    padding: 4px 10px;
+    background: rgba(16,185,129,0.15);
+    border-radius: 20px;
+    border: 1px solid rgba(16,185,129,0.3);
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes titleGlow {
+    from { text-shadow: 0 0 20px rgba(147,197,253,0.4), 0 4px 12px rgba(0,0,0,0.4); }
+    to   { text-shadow: 0 0 40px rgba(147,197,253,0.8), 0 0 60px rgba(96,165,250,0.4), 0 4px 12px rgba(0,0,0,0.4); }
+}
+
+@keyframes cloudDrift {
+    from { transform: translateX(-100px); opacity: 0.1; }
+    20%  { opacity: 0.35; }
+    80%  { opacity: 0.35; }
+    to   { transform: translateX(110vw); opacity: 0.1; }
+}
+
+@keyframes heroRainFall {
+    from { transform: translateY(-20px); opacity: 0; }
+    10%  { opacity: 1; }
+    to   { transform: translateY(40vh); opacity: 0; }
+}
+
+@keyframes dropFloat {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50%       { transform: translateY(-12px) scale(1.1); }
+}
+
+@keyframes tagPop {
+    from { transform: scale(0.6) translateY(10px); opacity: 0; }
+    to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+@keyframes cardSlideUp {
+    from { transform: translateY(40px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes wave {
+    0%, 100% { transform: rotate(0deg); }
+    20%       { transform: rotate(20deg); }
+    40%       { transform: rotate(-10deg); }
+    60%       { transform: rotate(15deg); }
+    80%       { transform: rotate(-5deg); }
+}
+
+@keyframes shine {
+    0%   { left: -100%; }
+    40%, 100% { left: 150%; }
+}
+
+@keyframes sparkleFloat {
+    0%, 100% { transform: translateY(0) scale(1); opacity: 0.4; }
+    50%       { transform: translateY(-20px) scale(1.2); opacity: 0.9; }
+}
