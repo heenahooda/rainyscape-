@@ -62,8 +62,8 @@ async function checkWeather() {
         );
         const data = await res.json();
 
-        if (data.cod !== 200) {
-            showAlert("❌ City not found. Check the spelling!", "red");
+       if (data.cod !== 200) {
+    showAlert(`❌ ${data.message}`, "red"); 
             btn.innerText = "Check"; btn.disabled = false;
             return;
         }
