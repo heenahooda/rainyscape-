@@ -1,110 +1,72 @@
 const API_KEY = "YOUR_API_KEY";
+let currentLang = "en";
 
-// Mode toggle
-function toggleMode() {
-  document.body.classList.toggle("light-mode");
+// 🌍 TRANSLATIONS (short for space)
+const translations = {
+  en:{title:"RainScape",check:"Check Weather",btn:"Check",high:"High Risk",safe:"Safe",chat:"Ask weather"},
+  hi:{title:"रेनस्केप",check:"मौसम",btn:"जांचें",high:"खतरा",safe:"सुरक्षित",chat:"पूछें"},
+  es:{title:"RainScape",check:"Clima",btn:"Buscar",high:"Riesgo",safe:"Seguro",chat:"Pregunta"},
+  fr:{title:"RainScape",check:"Météo",btn:"Chercher",high:"Risque",safe:"Sûr",chat:"Demande"},
+  de:{title:"RainScape",check:"Wetter",btn:"Suche",high:"Risiko",safe:"Sicher",chat:"Fragen"},
+  zh:{title:"雨景",check:"天气",btn:"搜索",high:"风险",safe:"安全",chat:"询问"},
+  ja:{title:"レイン",check:"天気",btn:"検索",high:"危険",safe:"安全",chat:"聞く"},
+  ru:{title:"Рейн",check:"Погода",btn:"Поиск",high:"Риск",safe:"Безопасно",chat:"Спросить"},
+  ar:{title:"رين",check:"الطقس",btn:"بحث",high:"خطر",safe:"آمن",chat:"اسأل"},
+  pt:{title:"RainScape",check:"Clima",btn:"Buscar",high:"Risco",safe:"Seguro",chat:"Perguntar"}
+};
+
+// 🌸 LOGIN
+function sendOTP(){ alert("OTP sent (demo = 1234)"); }
+function login(){
+  if(document.getElementById("otp").value==="1234"){
+    document.getElementById("loginPage").style.display="none";
+    document.getElementById("app").style.display="block";
+  } else alert("Wrong OTP");
 }
 
-// Language
-function changeLang() {
-  let lang = document.getElementById("language").value;
-  document.querySelector("h1").innerText =
-    lang === "hi" ? "🌧️ रेनस्केप" : "🌧️ RainScape";
+// 🌍 LANG
+function changeLang(){
+  currentLang=document.getElementById("language").value;
+  let t=translations[currentLang];
+
+  document.getElementById("title").innerText=t.title;
+  document.getElementById("heading").innerText=t.check;
+  document.getElementById("checkBtn").innerText=t.btn;
 }
 
-// Weather
-async function checkWeather() {
-  let city = document.getElementById("locationInput").value;
-  let loader = document.getElementById("loader");
+// 🌦️ WEATHER
+async function checkWeather(){
+  let city=document.getElementById("locationInput").value;
+  let res=await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`);
+  let data=await res.json();
 
-  loader.style.display = "block";
+  let temp=data.main.temp;
+  let condition=data.weather[0].main.toLowerCase();
+  let t=translations[currentLang];
 
-  let res = await fetch(
-    `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`
-  );
-  let data = await res.json();
+  document.getElementById("weather").innerHTML=`${temp}°C ${condition}`;
 
-  loader.style.display = "none";
-
-  let temp = data.main.temp;
-  let condition = data.weather[0].main.toLowerCase();
-
-  document.getElementById("weather").innerHTML = `
-    <div class="text-3xl font-bold">${temp}°C</div>
-    <div class="capitalize">${condition}</div>
-  `;
-
-  let alertBox = document.getElementById("alertBox");
-  let riskBar = document.getElementById("riskBar");
-
-  let suggestion = "";
-
-  if (condition.includes("rain")) {
-    alertBox.innerHTML = "⚠️ High Waterlogging Risk";
-    alertBox.style.background = "red";
-    riskBar.style.width = "90%";
-    riskBar.style.background = "red";
-    suggestion = "Carry an umbrella ☔ and avoid flooded roads.";
-  } else if (condition.includes("cloud")) {
-    alertBox.innerHTML = "⚠️ Moderate Risk";
-    alertBox.style.background = "orange";
-    riskBar.style.width = "60%";
-    riskBar.style.background = "orange";
-    suggestion = "Weather is moderate, stay prepared.";
+  if(condition.includes("rain")){
+    document.getElementById("alertBox").innerText=t.high;
+    document.getElementById("riskBar").style.width="90%";
   } else {
-    alertBox.innerHTML = "✅ Safe";
-    alertBox.style.background = "green";
-    riskBar.style.width = "30%";
-    riskBar.style.background = "green";
-    suggestion = "Great weather! Enjoy your day ☀️";
-  }
-
-  document.getElementById("suggestion").innerHTML = suggestion;
-
-  updateMap(city);
-}
-
-// Map
-let map = L.map('map').setView([28.6139, 77.2090], 10);
-
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-function updateMap(city) {
-  if (city.toLowerCase() === "delhi") {
-    map.setView([28.6139, 77.2090], 12);
+    document.getElementById("alertBox").innerText=t.safe;
+    document.getElementById("riskBar").style.width="30%";
   }
 }
 
-// Geo
-function getLocation() {
-  navigator.geolocation.getCurrentPosition(() => {
-    document.getElementById("locationInput").value = "Delhi";
-  });
-}
-
-// Voice
-function startVoice() {
-  let rec = new webkitSpeechRecognition();
-  rec.onresult = e => {
-    document.getElementById("locationInput").value = e.results[0][0].transcript;
-  };
-  rec.start();
-}
-
-// Chat
-function toggleChat() {
+// 🤖 CHAT
+function toggleChat(){
   document.getElementById("chatWindow").classList.toggle("hidden");
 }
 
-function sendMessage() {
-  let input = document.getElementById("chatInput").value.toLowerCase();
-  let chatbox = document.getElementById("chatbox");
+function sendMessage(){
+  let chat=document.getElementById("chatbox");
+  let t=translations[currentLang];
 
-  chatbox.innerHTML += `<div>You: ${input}</div>`;
-
-  let reply = "Ask about weather!";
-  if (input.includes("rain")) reply = "🌧️ Rain alert!";
-  if (input.includes("safe")) reply = "✅ Safe conditions";
-
-  chatbox.innerHTML += `<div>Bot: ${reply}</div>`;
+  chat.innerHTML+=`<div>Bot: ${t.chat}</div>`;
 }
+
+// 🗺️ MAP
+let map=L.map('map').setView([28.6,77.2],10);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
