@@ -71,23 +71,27 @@ async function checkWeather() {
         const temp  = Math.round(data.main.temp);
         const feels = Math.round(data.main.feels_like);
         const hum   = data.main.humidity;
-        const cond  = data.weather[0].main;
-        const lottieMap = {
+        const cond = data.weather[0].main;
+
+const lottieMap = {
     Rain: "https://assets10.lottiefiles.com/packages/lf20_jmBauI.json",
     Clear: "https://assets10.lottiefiles.com/packages/lf20_Stt1R8.json",
     Clouds: "https://assets10.lottiefiles.com/packages/lf20_0mOwU7.json"
 };
 
 const container = document.getElementById("lottie-weather");
-container.innerHTML = "";
 
-lottie.loadAnimation({
-    container,
-    renderer: "svg",
-    loop: true,
-    autoplay: true,
-    path: lottieMap[condition] || lottieMap["Clouds"]
-});
+if (container) {
+    container.innerHTML = "";
+
+    lottie.loadAnimation({
+        container: container,
+        renderer: "svg",
+        loop: true,
+        autoplay: true,
+        path: lottieMap[cond] || lottieMap["Clouds"]
+    });
+}
         const desc  = data.weather[0].description;
         const wind  = data.wind.speed;
 
