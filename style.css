@@ -1,25 +1,201 @@
-:root { --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #ffffff; --accent: #3b82f6; }
-body { margin: 0; font-family: 'Poppins'; background: var(--bg-color); color: var(--text-main); overflow: hidden; }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RainScape Pro | Ultra</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&family=Pacifico&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.9.6/lottie.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-/* Fixed Inputs */
-.styled-input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 12px; border: none; background: white !important; color: #1e293b !important; font-weight: 500; }
-.styled-input-small { width: 100%; padding: 8px; border-radius: 8px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); }
+<canvas id="rainCanvas"></canvas>
+<!-- Floating sparkles for login page -->
+<div id="sparkles-container"></div>
 
-/* UI Elements */
-.glass-morphism { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; }
-.neu { background: var(--card-bg); box-shadow: 10px 10px 20px #080d18, -10px -10px 20px #1c2b4a; border-radius: 20px; padding: 20px; }
-.btn-primary { background: var(--accent); color: white; padding: 10px; border-radius: 12px; font-weight: bold; }
-.btn-icon, .btn-secondary { background: #334155; padding: 10px; border-radius: 12px; }
+<!-- LOGIN PAGE -->
+<div id="loginPage">
 
-/* Layout */
-.main-container { display: grid; grid-template-columns: 350px 1fr; gap: 20px; padding: 20px; height: calc(100vh - 80px); }
-#map { height: 100%; border-radius: 24px; border: 4px solid rgba(255,255,255,0.1); }
+    <!-- TOP HERO AREA (30%) -->
+    <div class="login-hero">
+        <div class="hero-rain-drops" id="heroRain"></div>
+        <div class="hero-content">
+            <div class="logo-icon">🌧️</div>
+            <h1 class="hero-title">RainScape</h1>
+            <p class="hero-subtitle">Your Smart Weather Companion</p>
+            <div class="hero-tags">
+                <span class="tag">🌍 Real-time</span>
+                <span class="tag">⚡ Smart Alerts</span>
+                <span class="tag">🛡️ Safety First</span>
+            </div>
+        </div>
+        <!-- Animated clouds -->
+        <div class="cloud cloud-1">☁️</div>
+        <div class="cloud cloud-2">⛅</div>
+        <div class="cloud cloud-3">🌤️</div>
+        <!-- Floating drops -->
+        <div class="hero-drop drop-a">💧</div>
+        <div class="hero-drop drop-b">💧</div>
+        <div class="hero-drop drop-c">💧</div>
+    </div>
 
-/* Features */
-#rainCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; opacity: 0; }
-.sos-fab { position: fixed; bottom: 100px; right: 25px; width: 50px; height: 50px; background: #ef4444; border-radius: 50%; font-weight: bold; z-index: 1000; }
-.chat-toggle { position: fixed; bottom: 25px; right: 25px; width: 60px; height: 60px; background: var(--accent); border-radius: 50%; z-index: 1000; }
-.chatbot { position: fixed; bottom: 100px; right: 25px; width: 280px; z-index: 1001; }
-.risk-container { height: 10px; background: #334155; border-radius: 5px; overflow: hidden; }
-#riskBar { height: 100%; width: 0%; transition: width 1s ease; }
-.progress-circle { font-size: 12px; font-weight: bold; color: #10b981; }
+    <!-- BOTTOM FORM AREA (70%) -->
+    <div class="login-form-area">
+        <div class="glass-morphism login-card">
+            <div class="card-welcome">
+                <span class="wave-emoji">👋</span>
+                <h2 class="welcome-text">Welcome Back!</h2>
+                <p class="welcome-sub">Sign in to get your weather updates</p>
+            </div>
+
+            <div class="input-group">
+                <span class="input-icon">👤</span>
+                <input id="name" type="text" placeholder="Your Name" class="styled-input">
+            </div>
+            <div class="input-group">
+                <span class="input-icon">📧</span>
+                <input id="contact" type="text" placeholder="Email / Phone" class="styled-input">
+            </div>
+
+            <button onclick="sendOTP()" class="btn-primary w-full my-2 btn-otp">
+                <span>✉️ Send OTP</span>
+                <div class="btn-shine"></div>
+            </button>
+
+            <div class="otp-section" id="otpSection">
+                <div class="input-group">
+                    <span class="input-icon">🔐</span>
+                    <input id="otp" type="text" placeholder="Enter OTP (hint: 1234)" class="styled-input">
+                </div>
+                <button onclick="login()" class="btn-glow w-full mt-2">
+                    <span>🚀 Let's Go!</span>
+                    <div class="btn-shine"></div>
+                </button>
+            </div>
+
+            <p class="login-footer">Secured with 💙 by RainScape Pro</p>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" class="hidden">
+    <nav class="navbar glass">
+        <div class="flex items-center gap-2">
+            <span class="text-2xl nav-logo">🌧️</span>
+            <h1 id="navTitle" class="font-bold text-xl">RainScape</h1>
+        </div>
+        <div class="flex gap-4 items-center">
+            <div id="safety-tracker" class="progress-circle">
+                <span id="safety-text">30% Safe</span>
+            </div>
+            <select id="language" onchange="changeLang()" class="bg-slate-800 text-white rounded px-2 py-1">
+                <option value="en">English</option>
+                <option value="hi">हिंदी (Hindi)</option>
+                <option value="es">Español (Spanish)</option>
+                <option value="fr">Français (French)</option>
+                <option value="de">Deutsch (German)</option>
+                <option value="zh">中文 (Chinese)</option>
+                <option value="ja">日本語 (Japanese)</option>
+                <option value="ru">Русский (Russian)</option>
+                <option value="ar">العربية (Arabic)</option>
+                <option value="pt">Português (Portuguese)</option>
+            </select>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="card neu">
+                <div id="lottie-weather" class="h-32 mx-auto"></div>
+                <h2 id="heading" class="text-lg font-semibold mb-2">Check Weather</h2>
+                <div class="flex gap-2">
+                    <input id="locationInput" placeholder="Enter city..." class="styled-input mb-0">
+                    <button onclick="startVoice()" class="btn-icon">🎤</button>
+                </div>
+                <div class="flex gap-2 mt-4">
+                    <button onclick="checkWeather()" id="checkBtn" class="btn-primary flex-1">Check</button>
+                    <button onclick="getLocation()" class="btn-secondary">📍</button>
+                </div>
+                <div id="weather" class="text-3xl font-bold mt-4"></div>
+                <div id="alertBox" class="mt-2 text-sm font-medium"></div>
+                <div class="risk-container mt-4"><div id="riskBar"></div></div>
+                <div id="suggestion" class="mt-4 italic text-sm text-slate-300"></div>
+            </div>
+            <div class="card glass mt-4 h-48 overflow-hidden relative" id="globe-container"></div>
+        </div>
+
+        <div class="content">
+            <div id="map"></div>
+            <div class="map-controls glass p-2 mt-2 flex gap-4">
+                <button id="heatBtn" onclick="toggleHeatmap()" class="btn-action bg-red-500/20 border-red-500/50">🔥 Flood Heatmap</button>
+                <button id="reportBtn" onclick="reportRain()" class="btn-action bg-blue-500/20 border-blue-500/50">📡 Live Report</button>
+            </div>
+        </div>
+    </div>
+
+    <button class="sos-fab" onclick="triggerSOS()">SOS</button>
+    <button class="chat-toggle" onclick="toggleChat()">💬</button>
+    <div id="chatWindow" class="chatbot glass-morphism hidden">
+        <div id="chatHeader" class="chat-header">RainyBot 🤖</div>
+        <div id="chatbox" class="h-48 overflow-y-auto p-2"></div>
+        <div class="flex gap-1 p-2 border-t border-white/10">
+            <input id="chatInput" placeholder="Ask something..." class="styled-input-small">
+            <button onclick="sendMessage()" class="bg-blue-600 px-3 rounded">➔</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="script.js"></script>
+
+<!-- Login page enhancements -->
+<script>
+// Create floating sparkles
+function createSparkles() {
+    const container = document.getElementById('sparkles-container');
+    const emojis = ['✨','⭐','💫','🌟','💧','❄️','🌈'];
+    for(let i = 0; i < 18; i++) {
+        const s = document.createElement('div');
+        s.className = 'sparkle';
+        s.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+        s.style.left = Math.random() * 100 + 'vw';
+        s.style.top = Math.random() * 100 + 'vh';
+        s.style.animationDelay = (Math.random() * 4) + 's';
+        s.style.animationDuration = (3 + Math.random() * 4) + 's';
+        s.style.fontSize = (10 + Math.random() * 14) + 'px';
+        container.appendChild(s);
+    }
+}
+
+// Create animated rain drops in hero area
+function createHeroRain() {
+    const hero = document.getElementById('heroRain');
+    for(let i = 0; i < 20; i++) {
+        const d = document.createElement('div');
+        d.className = 'hero-raindrop';
+        d.style.left = Math.random() * 100 + '%';
+        d.style.animationDelay = (Math.random() * 2) + 's';
+        d.style.animationDuration = (0.8 + Math.random() * 0.8) + 's';
+        hero.appendChild(d);
+    }
+}
+
+// Show OTP section with animation after sendOTP
+const origSendOTP = window.sendOTP;
+window.sendOTP = function() {
+    alert("OTP: 1234 (demo mode 🎉)");
+    const section = document.getElementById('otpSection');
+    section.classList.add('show');
+}
+
+createSparkles();
+createHeroRain();
+</script>
+</body>
+</html>
