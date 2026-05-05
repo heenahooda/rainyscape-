@@ -1,120 +1,77 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>RainScape</title>
+  <meta charset="UTF-8">
+  <title>RainScape</title>
 
-    <!-- Tailwind -->
-    <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 
-    <!-- Leaflet -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            transition: 0.4s;
-        }
-
-        .glass {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(15px);
-            border-radius: 15px;
-        }
-
-        .dark-mode {
-            background: #0f172a;
-            color: white;
-        }
-
-        .light-mode {
-            background: #f1f5f9;
-            color: black;
-        }
-
-        #map { height: 300px; border-radius: 15px; }
-
-        .chatbot {
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            width: 300px;
-        }
-
-        .chat-toggle {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-        }
-
-        .hidden { display: none; }
-
-        .loader {
-            border: 4px solid #ccc;
-            border-top: 4px solid #3b82f6;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            animation: spin 1s linear infinite;
-            margin: auto;
-            display: none;
-        }
-
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-
-        #riskBar {
-            height: 10px;
-            width: 0%;
-            border-radius: 10px;
-            transition: 0.5s;
-        }
-    </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 
-<body class="dark-mode">
+<body class="dark-mode bg-gradient-to-br from-slate-900 to-slate-700">
 
-<div class="p-5 flex justify-between">
-    <h1 class="text-2xl font-bold">🌧️ RainScape</h1>
-    <div>
-        <button onclick="toggleMode()" class="px-3">🌙</button>
-        <select id="language" onchange="changeLang()" class="text-black">
-            <option value="en">EN</option>
-            <option value="hi">HI</option>
-        </select>
-    </div>
+<!-- Navbar -->
+<div class="flex justify-between items-center px-6 py-4 bg-black/30 backdrop-blur-md">
+  <h1 class="text-2xl font-bold">🌧️ RainScape</h1>
+
+  <div class="flex items-center gap-4">
+    <button onclick="toggleMode()">🌙</button>
+    <select id="language" onchange="changeLang()" class="text-black rounded px-2">
+      <option value="en">EN</option>
+      <option value="hi">HI</option>
+    </select>
+  </div>
 </div>
 
-<div class="glass p-5 m-5 text-center">
-    <input id="locationInput" class="p-2 rounded text-black" placeholder="Enter city">
-    <button onclick="checkWeather()" class="bg-blue-500 px-3 py-2 rounded text-white">Check</button>
-    <button onclick="getLocation()" class="bg-green-500 px-3 py-2 rounded text-white">📍</button>
-    <button onclick="startVoice()" class="bg-purple-500 px-3 py-2 rounded text-white">🎤</button>
+<!-- Main -->
+<div class="grid md:grid-cols-2 gap-6 p-6">
+
+  <!-- Weather Card -->
+  <div class="glass p-6 text-center">
+
+    <h2 class="text-xl mb-3">Check Weather</h2>
+
+    <input id="locationInput" class="p-2 rounded text-black w-full mb-3" placeholder="Enter city">
+
+    <div class="flex justify-center gap-2">
+      <button onclick="checkWeather()" class="bg-blue-500 px-3 py-2 rounded">Check</button>
+      <button onclick="getLocation()" class="bg-green-500 px-3 py-2 rounded">📍</button>
+      <button onclick="startVoice()" class="bg-purple-500 px-3 py-2 rounded">🎤</button>
+    </div>
 
     <div id="loader" class="loader mt-3"></div>
-    <div id="weather" class="mt-2"></div>
+
+    <div id="weather" class="mt-4 text-lg"></div>
     <div id="alertBox" class="mt-2 p-2 rounded"></div>
 
-    <div class="bg-gray-700 mt-3 rounded">
-        <div id="riskBar"></div>
+    <div class="bg-gray-700 mt-3 rounded h-2">
+      <div id="riskBar"></div>
     </div>
 
-    <div id="suggestion" class="mt-2"></div>
-</div>
+    <div id="suggestion" class="mt-2 text-sm opacity-80"></div>
 
-<div id="map" class="m-5"></div>
+  </div>
+
+  <!-- Map -->
+  <div id="map"></div>
+
+</div>
 
 <!-- Chat -->
 <button class="chat-toggle bg-blue-500 text-white" onclick="toggleChat()">💬</button>
 
 <div id="chatWindow" class="chatbot glass p-3 hidden">
-    <div id="chatbox" class="h-32 overflow-y-auto bg-black text-white p-2 mb-2 rounded"></div>
-    <input id="chatInput" class="w-full p-2 text-black rounded">
-    <button onclick="sendMessage()" class="bg-blue-500 w-full mt-2 p-2 rounded">Send</button>
+  <div id="chatbox" class="h-32 overflow-y-auto bg-black text-white p-2 mb-2 rounded"></div>
+  <input id="chatInput" class="w-full p-2 text-black rounded">
+  <button onclick="sendMessage()" class="bg-blue-500 w-full mt-2 p-2 rounded">Send</button>
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
