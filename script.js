@@ -92,7 +92,13 @@ async function checkWeather() {
 
         // Move map
         map.flyTo([data.coord.lat, data.coord.lon], 12);
-        L.marker([data.coord.lat, data.coord.lon])
+      const customIcon = L.divIcon({
+    className: "custom-marker",
+    html: "💧",
+    iconSize: [30, 30]
+});
+
+L.marker([data.coord.lat, data.coord.lon], { icon: customIcon })
             .addTo(map)
             .bindPopup(`<b>${city}</b><br>${temp}°C — ${desc}`)
             .openPopup();
@@ -194,7 +200,23 @@ function sendMessage() {
     const l      = document.getElementById('language').value;
     if (!input.value.trim()) return;
 
-    box.innerHTML += `<div style="text-align:right;margin:4px 0"><span style="background:#2563eb;padding:4px 10px;border-radius:12px;font-size:0.8rem">${input.value}</span></div>`;
+    typeReply(reply);
+
+function typeReply(text) {
+    const box = document.getElementById('chatbox');
+    let i = 0;
+    let div = document.createElement("div");
+    div.style.fontSize = "0.8rem";
+    div.style.color = "#94a3b8";
+    box.appendChild(div);
+
+    let interval = setInterval(() => {
+        div.innerHTML = "🤖 " + text.substring(0, i);
+        i++;
+        if (i > text.length) clearInterval(interval);
+        box.scrollTop = box.scrollHeight;
+    }, 20);
+}
     const userMsg = input.value;
     input.value = "";
 
