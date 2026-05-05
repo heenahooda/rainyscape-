@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RainScape Pro | Ultra</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&family=Pacifico&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.9.6/lottie.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -15,16 +15,71 @@
 <body>
 
 <canvas id="rainCanvas"></canvas>
+<!-- Floating sparkles for login page -->
+<div id="sparkles-container"></div>
 
 <!-- LOGIN PAGE -->
 <div id="loginPage">
-    <div class="glass-morphism login-card">
-        <h2 class="text-2xl font-bold mb-4">Welcome 💖</h2>
-        <input id="name" type="text" placeholder="Your Name" class="styled-input">
-        <input id="contact" type="text" placeholder="Email / Phone" class="styled-input">
-        <button onclick="sendOTP()" class="btn-primary w-full my-2">Send OTP</button>
-        <input id="otp" type="text" placeholder="Enter OTP" class="styled-input">
-        <button onclick="login()" class="btn-glow w-full mt-2">Login</button>
+
+    <!-- TOP HERO AREA (30%) -->
+    <div class="login-hero">
+        <div class="hero-rain-drops" id="heroRain"></div>
+        <div class="hero-content">
+            <div class="logo-icon">🌧️</div>
+            <h1 class="hero-title">RainScape</h1>
+            <p class="hero-subtitle">Your Smart Weather Companion</p>
+            <div class="hero-tags">
+                <span class="tag">🌍 Real-time</span>
+                <span class="tag">⚡ Smart Alerts</span>
+                <span class="tag">🛡️ Safety First</span>
+            </div>
+        </div>
+        <!-- Animated clouds -->
+        <div class="cloud cloud-1">☁️</div>
+        <div class="cloud cloud-2">⛅</div>
+        <div class="cloud cloud-3">🌤️</div>
+        <!-- Floating drops -->
+        <div class="hero-drop drop-a">💧</div>
+        <div class="hero-drop drop-b">💧</div>
+        <div class="hero-drop drop-c">💧</div>
+    </div>
+
+    <!-- BOTTOM FORM AREA (70%) -->
+    <div class="login-form-area">
+        <div class="glass-morphism login-card">
+            <div class="card-welcome">
+                <span class="wave-emoji">👋</span>
+                <h2 class="welcome-text">Welcome Back!</h2>
+                <p class="welcome-sub">Sign in to get your weather updates</p>
+            </div>
+
+            <div class="input-group">
+                <span class="input-icon">👤</span>
+                <input id="name" type="text" placeholder="Your Name" class="styled-input">
+            </div>
+            <div class="input-group">
+                <span class="input-icon">📧</span>
+                <input id="contact" type="text" placeholder="Email / Phone" class="styled-input">
+            </div>
+
+            <button onclick="sendOTP()" class="btn-primary w-full my-2 btn-otp">
+                <span>✉️ Send OTP</span>
+                <div class="btn-shine"></div>
+            </button>
+
+            <div class="otp-section" id="otpSection">
+                <div class="input-group">
+                    <span class="input-icon">🔐</span>
+                    <input id="otp" type="text" placeholder="Enter OTP (hint: 1234)" class="styled-input">
+                </div>
+                <button onclick="login()" class="btn-glow w-full mt-2">
+                    <span>🚀 Let's Go!</span>
+                    <div class="btn-shine"></div>
+                </button>
+            </div>
+
+            <p class="login-footer">Secured with 💙 by RainScape Pro</p>
+        </div>
     </div>
 </div>
 
@@ -32,7 +87,7 @@
 <div id="app" class="hidden">
     <nav class="navbar glass">
         <div class="flex items-center gap-2">
-            <span class="text-2xl">🌧️</span>
+            <span class="text-2xl nav-logo">🌧️</span>
             <h1 id="navTitle" class="font-bold text-xl">RainScape</h1>
         </div>
         <div class="flex gap-4 items-center">
@@ -98,5 +153,49 @@
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="script.js"></script>
+
+<!-- Login page enhancements -->
+<script>
+// Create floating sparkles
+function createSparkles() {
+    const container = document.getElementById('sparkles-container');
+    const emojis = ['✨','⭐','💫','🌟','💧','❄️','🌈'];
+    for(let i = 0; i < 18; i++) {
+        const s = document.createElement('div');
+        s.className = 'sparkle';
+        s.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+        s.style.left = Math.random() * 100 + 'vw';
+        s.style.top = Math.random() * 100 + 'vh';
+        s.style.animationDelay = (Math.random() * 4) + 's';
+        s.style.animationDuration = (3 + Math.random() * 4) + 's';
+        s.style.fontSize = (10 + Math.random() * 14) + 'px';
+        container.appendChild(s);
+    }
+}
+
+// Create animated rain drops in hero area
+function createHeroRain() {
+    const hero = document.getElementById('heroRain');
+    for(let i = 0; i < 20; i++) {
+        const d = document.createElement('div');
+        d.className = 'hero-raindrop';
+        d.style.left = Math.random() * 100 + '%';
+        d.style.animationDelay = (Math.random() * 2) + 's';
+        d.style.animationDuration = (0.8 + Math.random() * 0.8) + 's';
+        hero.appendChild(d);
+    }
+}
+
+// Show OTP section with animation after sendOTP
+const origSendOTP = window.sendOTP;
+window.sendOTP = function() {
+    alert("OTP: 1234 (demo mode 🎉)");
+    const section = document.getElementById('otpSection');
+    section.classList.add('show');
+}
+
+createSparkles();
+createHeroRain();
+</script>
 </body>
 </html>
