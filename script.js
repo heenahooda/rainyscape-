@@ -1,204 +1,115 @@
-const API_KEY = "YOUR_API_KEY"; // Replace with your active key
-let currentLang = "en";
-let lottiePlayer;
+const API_KEY = "YOUR_API_KEY"; // REPLACE WITH YOUR OPENWEATHERMAP API KEY
 
-// 1. Initialize Lottie with Dynamic Switching
-function initLottie(condition = 'clear') {
-    const container = document.getElementById('lottie-weather');
-    container.innerHTML = ''; // Clear previous
-    
-    const path = condition.includes('rain') 
-        ? 'https://assets9.lottiefiles.com/packages/lf20_b6czun9o.json' // Animated Rain
-        : 'https://assets5.lottiefiles.com/packages/lf20_tad7clnr.json'; // Animated Sun
+const translations = {
+    en: { nav: "RainScape", head: "Check Weather", btn: "Check", report: "📡 Live Report", heat: "🔥 Flood Heatmap", bot: "How can I help?", safe: "Safe", risk: "Risk", chatH: "RainyBot 🤖" },
+    hi: { nav: "रेनस्केप", head: "मौसम की जांच", btn: "जांचें", report: "📡 लाइव रिपोर्ट", heat: "🔥 फ्लड मैप", bot: "मैं क्या मदद कर सकता हूँ?", safe: "सुरक्षित", risk: "खतरा", chatH: "रेनीबॉट 🤖" },
+    es: { nav: "RainScape", head: "Clima", btn: "Consultar", report: "📡 Informe", heat: "🔥 Mapa", bot: "¿En qué ayudo?", safe: "Seguro", risk: "Riesgo", chatH: "RainyBot 🤖" },
+    fr: { nav: "RainScape", head: "Météo", btn: "Vérifier", report: "📡 Rapport", heat: "🔥 Carte", bot: "Comment aider?", safe: "Sûr", risk: "Risque", chatH: "RainyBot 🤖" },
+    de: { nav: "RainScape", head: "Wetter", btn: "Prüfen", report: "📡 Bericht", heat: "🔥 Karte", bot: "Wie helfen?", safe: "Sicher", risk: "Risiko", chatH: "RainyBot 🤖" },
+    zh: { nav: "雨景", head: "查询天气", btn: "查询", report: "📡 现场报告", heat: "🔥 洪水图", bot: "我能帮你吗？", safe: "安全", risk: "危险", chatH: "雨机器人 🤖" },
+    ja: { nav: "レインスケープ", head: "天気チェック", btn: "チェック", report: "📡 ライブ報告", heat: "🔥 洪水マップ", bot: "何かお手伝い？", safe: "安全", risk: "危険", chatH: "レイニーボット 🤖" },
+    ru: { nav: "RainScape", head: "Погода", btn: "Проверить", report: "📡 Отчет", heat: "🔥 Карта", bot: "Чем помочь?", safe: "Безопасно", risk: "Риск", chatH: "РейниБот 🤖" },
+    ar: { nav: "رينسكيب", head: "تحقق من الطقس", btn: "تحقق", report: "📡 تقرير مباشر", heat: "🔥 خريطة فيضان", bot: "كيف أساعد؟", safe: "آمن", risk: "خطر", chatH: "ريني بوت 🤖" },
+    pt: { nav: "RainScape", head: "Clima", btn: "Verificar", report: "📡 Relatório", heat: "🔥 Mapa", bot: "Como ajudar?", safe: "Seguro", risk: "Risco", chatH: "RainyBot 🤖" }
+};
 
-    lottiePlayer = lottie.loadAnimation({
-        container: container,
-        renderer: 'svg',
-        loop: true,
-        autoplay: true,
-        path: path
-    });
+let map = L.map('map', { zoomControl: true }).setView([28.6139, 77.2090], 11);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+function changeLang() {
+    const l = document.getElementById('language').value;
+    const t = translations[l];
+    document.getElementById('navTitle').innerText = t.nav;
+    document.getElementById('heading').innerText = t.head;
+    document.getElementById('checkBtn').innerText = t.btn;
+    document.getElementById('reportBtn').innerText = t.report;
+    document.getElementById('heatBtn').innerText = t.heat;
+    document.getElementById('chatHeader').innerText = t.chatH;
+    document.getElementById('chatInput').placeholder = t.bot;
 }
 
-// 2. Advanced Rain Engine
-const canvas = document.getElementById('rainCanvas');
-const ctx = canvas.getContext('2d');
-let rainDrops = [];
-
-function createRain() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    rainDrops = [];
-    for (let i = 0; i < 150; i++) {
-        rainDrops.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            length: Math.random() * 25,
-            speed: Math.random() * 7 + 7,
-            opacity: Math.random() * 0.5
-        });
-    }
-}
-
-function animateRain() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = 'rgba(174, 194, 224, 0.5)';
-    ctx.lineWidth = 1.5;
-    ctx.lineCap = 'round';
-    
-    rainDrops.forEach(d => {
-        ctx.beginPath();
-        ctx.moveTo(d.x, d.y);
-        ctx.lineTo(d.x, d.y + d.length);
-        ctx.stroke();
-        d.y += d.speed;
-        if (d.y > canvas.height) d.y = -d.length;
-    });
-    requestAnimationFrame(animateRain);
-}
-
-// 3. Three.js Globe with Starfield
-function initGlobe() {
-    const container = document.getElementById('globe-container');
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, container.offsetWidth / container.offsetHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    
-    renderer.setSize(container.offsetWidth, container.offsetHeight);
-    container.appendChild(renderer.domElement);
-
-    // Create Globe
-    const geometry = new THREE.SphereGeometry(1, 32, 32);
-    const material = new THREE.MeshPhongMaterial({
-        color: 0x3b82f6,
-        wireframe: true,
-        transparent: true,
-        opacity: 0.8
-    });
-    const globe = new THREE.Mesh(geometry, material);
-    scene.add(globe);
-
-    // Ambient Lighting
-    const light = new THREE.PointLight(0xffffff, 1.5);
-    light.position.set(5, 5, 5);
-    scene.add(light);
-    scene.add(new THREE.AmbientLight(0x404040));
-
-    camera.position.z = 2.2;
-
-    function anim() {
-        requestAnimationFrame(anim);
-        globe.rotation.y += 0.005;
-        globe.rotation.x += 0.002;
-        renderer.render(scene, camera);
-    }
-    anim();
-}
-
-// 4. Enhanced Weather Logic
 async function checkWeather() {
     const city = document.getElementById('locationInput').value;
-    if (!city) return;
-
-    const loader = document.getElementById('weather-skeleton');
-    const weatherDiv = document.getElementById('weather');
+    if(!city) return alert("Please enter a city name");
     
-    loader.classList.remove('hidden');
-    weatherDiv.classList.add('opacity-0');
-
     try {
         const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`);
         const data = await res.json();
-        
-        loader.classList.add('hidden');
-        weatherDiv.classList.remove('opacity-0');
+        if(data.cod !== 200) throw new Error();
 
         const temp = Math.round(data.main.temp);
-        const condition = data.weather[0].main;
-        const lat = data.coord.lat;
-        const lon = data.coord.lon;
+        const cond = data.weather[0].main;
+        document.getElementById('weather').innerHTML = `${temp}°C ${cond}`;
+        map.flyTo([data.coord.lat, data.coord.lon], 12);
+        L.marker([data.coord.lat, data.coord.lon]).addTo(map).bindPopup(city).openPopup();
 
-        weatherDiv.innerHTML = `${temp}°C <span class="text-xl font-light">${condition}</span>`;
-        
-        // Update Map Smoothly
-        map.flyTo([lat, lon], 12, { animate: true, duration: 1.5 });
-        L.marker([lat, lon]).addTo(map).bindPopup(`Current weather in ${city}`).openPopup();
-
-        handleWeatherEffects(condition);
-
-    } catch (e) {
-        console.error("Fetch Error:", e);
-        alert("City not found. Please check the spelling!");
-        loader.classList.add('hidden');
+        const isRain = cond.toLowerCase().includes('rain');
+        document.getElementById('rainCanvas').style.opacity = isRain ? "1" : "0";
+        document.getElementById('riskBar').style.width = isRain ? "90%" : "20%";
+        document.getElementById('riskBar').style.backgroundColor = isRain ? "red" : "green";
+        if(!isRain) confetti();
+    } catch(e) {
+        alert("City spelling might be wrong or API Key is missing!");
     }
 }
 
-function handleWeatherEffects(condition) {
-    const isRaining = condition.toLowerCase().includes('rain');
-    initLottie(condition.toLowerCase());
-
-    if (isRaining) {
-        document.getElementById('rainCanvas').style.opacity = "1";
-        document.getElementById('riskBar').style.width = "90%";
-        document.getElementById('riskBar').style.backgroundColor = "#ef4444";
-        document.getElementById('alertBox').innerHTML = "🚨 HIGH RISK: Avoid low-lying areas.";
-        document.getElementById('suggestion').innerText = "Keep an umbrella and check for road closures.";
-    } else {
-        document.getElementById('rainCanvas').style.opacity = "0";
-        document.getElementById('riskBar').style.width = "15%";
-        document.getElementById('riskBar').style.backgroundColor = "#10b981";
-        document.getElementById('alertBox').innerHTML = "✅ Safe: No waterlogging predicted.";
-        document.getElementById('suggestion').innerText = "Clear skies! Perfect for outdoor activities.";
-        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-    }
+function startVoice() {
+    const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(!Speech) return alert("Browser does not support voice");
+    const rec = new Speech();
+    rec.start();
+    rec.onresult = (e) => {
+        document.getElementById('locationInput').value = e.results[0][0].transcript;
+        checkWeather();
+    };
 }
 
-// 5. Chatbot Simulation
+function getLocation() {
+    navigator.geolocation.getCurrentPosition(p => {
+        map.flyTo([p.coords.latitude, p.coords.longitude], 14);
+        L.marker([p.coords.latitude, p.coords.longitude]).addTo(map).bindPopup("You are here").openPopup();
+    }, () => alert("Location denied"));
+}
+
 function sendMessage() {
     const input = document.getElementById('chatInput');
     const box = document.getElementById('chatbox');
-    if (!input.value) return;
-
-    box.innerHTML += `<div class="text-right text-blue-400 mb-2">You: ${input.value}</div>`;
-    
+    const l = document.getElementById('language').value;
+    if(!input.value) return;
+    box.innerHTML += `<div class='text-blue-400'>You: ${input.value}</div>`;
     setTimeout(() => {
-        let reply = "I'm not sure about that. Try asking about the rain!";
-        if(input.value.toLowerCase().includes('rain')) reply = "Current data shows high risk in urban sectors. Stay safe!";
-        if(input.value.toLowerCase().includes('safe')) reply = "Check the risk bar on your dashboard for live updates.";
-        
-        box.innerHTML += `<div class="text-left text-gray-300 mb-2">Bot: ${reply}</div>`;
+        box.innerHTML += `<div class='text-gray-300'>Bot: ${translations[l].bot}</div>`;
         box.scrollTop = box.scrollHeight;
-    }, 600);
-    
+    }, 500);
     input.value = "";
 }
 
-// 6. Core App Flow
+function sendOTP() { alert("OTP: 1234"); }
 function login() {
-    const otpInput = document.getElementById('otp').value;
-    if (otpInput === "1234") {
-        document.getElementById('loginPage').classList.add('hidden');
+    if(document.getElementById('otp').value === "1234") {
+        document.getElementById('loginPage').style.display = "none";
         document.getElementById('app').classList.remove('hidden');
-        
-        // Initialize all visuals after login
-        initLottie();
-        initGlobe();
-        createRain();
+        setTimeout(() => map.invalidateSize(), 500);
         animateRain();
-        setTimeout(() => map.invalidateSize(), 400); // Fixes Leaflet gray boxes
-    } else {
-        alert("Incorrect OTP! Hint: 1234");
     }
 }
 
-// SOS Logic
-function triggerSOS() {
-    if ("vibrate" in navigator) navigator.vibrate([100, 30, 100, 30, 100]);
-    alert("Emergency SOS signal sent with your GPS coordinates!");
-}
+function toggleChat() { document.getElementById('chatWindow').classList.toggle('hidden'); }
+function reportRain() { alert("Reported! Live data syncing..."); confetti(); }
+function triggerSOS() { alert("SOS SENT! COORDINATES SHARED."); }
 
-// Initialize Map
-let map = L.map('map', { zoomControl: false }).setView([28.6139, 77.2090], 11);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; OpenStreetMap'
-}).addTo(map);
+// Rain Animation Engine
+const canvas = document.getElementById('rainCanvas');
+const ctx = canvas.getContext('2d');
+let drops = [];
+function animateRain() {
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    if(drops.length === 0) for(let i=0; i<100; i++) drops.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, s:Math.random()*5+5});
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+    ctx.strokeStyle = "rgba(174,194,224,0.5)";
+    drops.forEach(d => {
+        ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(d.x, d.y+10); ctx.stroke();
+        d.y += d.s; if(d.y > canvas.height) d.y = -10;
+    });
+    requestAnimationFrame(animateRain);
+}
