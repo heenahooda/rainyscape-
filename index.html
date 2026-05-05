@@ -1,89 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>RainScape Pro</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RainScape Pro | Ultra</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <!-- Scripts for new effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.9.6/lottie.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
 </head>
+<body class="custom-scrollbar">
 
-<body>
+<!-- 🌧️ Rain Canvas Overlay -->
+<canvas id="rainCanvas"></canvas>
 
-<!-- 🌸 LOGIN -->
+<!-- 🌸 LOGIN PAGE -->
 <div id="loginPage">
-  <div class="glass login-card">
-    <h2>Welcome 💖</h2>
-    <input id="name" placeholder="Your Name">
-    <input id="contact" placeholder="Email / Phone">
-    <button onclick="sendOTP()">Send OTP</button>
-    <input id="otp" placeholder="Enter OTP">
-    <button onclick="login()">Login</button>
-  </div>
+    <div class="glass-morphism login-card animate-fade-in">
+        <div id="lottie-login" class="h-24"></div>
+        <h2 class="text-2xl font-bold mb-4">Welcome 💖</h2>
+        <input id="name" type="text" placeholder="Your Name" class="styled-input">
+        <input id="contact" type="text" placeholder="Email / Phone" class="styled-input">
+        <button onclick="sendOTP()" class="btn-primary w-full my-2">Send OTP</button>
+        <input id="otp" type="text" placeholder="Enter OTP" class="styled-input">
+        <button onclick="login()" class="btn-glow w-full mt-2">Login</button>
+    </div>
 </div>
 
-<!-- 🌧️ APP -->
-<div id="app">
+<!-- 🌧️ MAIN APP -->
+<div id="app" class="hidden">
+    <nav class="navbar glass">
+        <div class="flex items-center gap-2">
+            <span class="text-2xl">🌧️</span>
+            <h1 id="title" class="font-bold text-xl">RainScape</h1>
+        </div>
+        <div class="flex gap-4 items-center">
+            <div id="safety-tracker" class="progress-circle" data-percent="30">
+                <span id="safety-text">30% Safe</span>
+            </div>
+            <select id="language" onchange="changeLang()" class="bg-slate-800 rounded px-2 py-1">
+                <option value="en">English</option>
+                <option value="hi">हिंदी</option>
+                <option value="es">Español</option>
+            </select>
+        </div>
+    </nav>
 
-<div class="navbar">
-  <h1 id="title">🌧️ RainScape</h1>
-  <select id="language" onchange="changeLang()">
-    <option value="en">EN</option>
-    <option value="hi">HI</option>
-    <option value="es">ES</option>
-    <option value="fr">FR</option>
-    <option value="de">DE</option>
-    <option value="zh">ZH</option>
-    <option value="ja">JA</option>
-    <option value="ru">RU</option>
-    <option value="ar">AR</option>
-    <option value="pt">PT</option>
-  </select>
-</div>
+    <div class="main-container">
+        <!-- Dashboard Column -->
+        <div class="sidebar">
+            <div class="card neu animate-pop">
+                <div id="lottie-weather" class="h-32 mx-auto"></div>
+                <h2 id="heading" class="text-lg font-semibold mb-2">Check Weather</h2>
+                <div class="flex gap-2">
+                    <input id="locationInput" placeholder="Enter city..." class="styled-input mb-0">
+                    <button onclick="startVoice()" class="btn-icon">🎤</button>
+                </div>
+                
+                <div class="flex gap-2 mt-4">
+                    <button onclick="checkWeather()" id="checkBtn" class="btn-primary flex-1">Check</button>
+                    <button onclick="getLocation()" class="btn-secondary">📍</button>
+                </div>
 
-<div class="container">
+                <div id="weather-skeleton" class="skeleton hidden mt-4 h-20 rounded-lg"></div>
+                <div id="weather" class="text-3xl font-bold mt-4"></div>
+                <div id="alertBox" class="mt-2 text-sm font-medium"></div>
 
-<div class="card neu">
+                <div class="risk-container mt-4">
+                    <div id="riskBar"></div>
+                </div>
+                <div id="suggestion" class="mt-4 italic text-sm text-slate-300"></div>
+            </div>
 
-<h2 id="heading">Check Weather</h2>
+            <!-- 3D Globe Section -->
+            <div class="card glass mt-4 h-48 overflow-hidden relative" id="globe-container">
+                <p class="absolute top-2 left-2 z-10 text-xs font-bold uppercase">Live Hotspots</p>
+            </div>
+            
+            <!-- Community Leaderboard -->
+            <div class="card glass mt-4">
+                <h3 class="text-xs font-bold mb-2 uppercase">Top Reporters 🏆</h3>
+                <div class="flex justify-between text-sm opacity-80">
+                    <span>1. Yash_CSE</span>
+                    <span>42 Reports</span>
+                </div>
+            </div>
+        </div>
 
-<input id="locationInput" placeholder="Enter city">
+        <!-- Map Column -->
+        <div class="content">
+            <div id="map" class="shadow-2xl"></div>
+            <div class="map-controls glass p-2 mt-2 flex gap-4 overflow-x-auto">
+                <button onclick="toggleHeatmap()" class="text-xs whitespace-nowrap bg-red-500/20 p-2 rounded border border-red-500/50">🔥 Flood Heatmap</button>
+                <button onclick="reportRain()" class="text-xs whitespace-nowrap bg-blue-500/20 p-2 rounded border border-blue-500/50">📡 Live Report</button>
+            </div>
+        </div>
+    </div>
 
-<div class="btns">
-<button onclick="checkWeather()" id="checkBtn">Check</button>
-<button onclick="getLocation()">📍</button>
-<button onclick="startVoice()">🎤</button>
-</div>
+    <!-- Floating UI -->
+    <button class="sos-fab" onclick="triggerSOS()">SOS</button>
+    <button class="chat-toggle btn-glow" onclick="toggleChat()">💬</button>
 
-<div id="loader" class="loader"></div>
-<div id="weather"></div>
-<div id="alertBox"></div>
-
-<div class="risk">
-<div id="riskBar"></div>
-</div>
-
-<div id="suggestion"></div>
-
-</div>
-
-<div id="map"></div>
-
-</div>
-
-<button class="chat-toggle" onclick="toggleChat()">💬</button>
-
-<div id="chatWindow" class="chatbot hidden">
-  <div id="chatbox"></div>
-  <input id="chatInput">
-  <button onclick="sendMessage()">Send</button>
-</div>
-
-<div id="rainEffect"></div>
-
+    <div id="chatWindow" class="chatbot glass-morphism hidden">
+        <div class="chat-header">RainyBot 🤖</div>
+        <div id="chatbox" class="h-48 overflow-y-auto p-2"></div>
+        <div class="flex gap-1 p-2 border-t border-white/10">
+            <input id="chatInput" placeholder="Type here..." class="styled-input-small">
+            <button onclick="sendMessage()" class="bg-blue-600 px-3 rounded">➔</button>
+        </div>
+    </div>
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
