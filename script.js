@@ -215,15 +215,36 @@ const botReplies = [
 ];
 
 function sendMessage() {
-    const input  = document.getElementById('chatInput');
-    const box    = document.getElementById('chatbox');
-    const l      = document.getElementById('language').value;
-    if (!input.value.trim()) return;
+    const input = document.getElementById('chatInput');
+    const box = document.getElementById('chatbox');
 
+    const userMsg = input.value.trim();
+    if (!userMsg) return;
+
+    // Show user message
+    box.innerHTML += `<div style="margin:4px 0;font-size:0.8rem">🧑 ${userMsg}</div>`;
+    input.value = "";
+
+    // Generate reply
+    let reply;
+    const lower = userMsg.toLowerCase();
+
+    if (lower.includes('rain') || lower.includes('flood')) reply = botReplies[0];
+    else if (lower.includes('umbrella') || lower.includes('tip')) reply = botReplies[1];
+    else if (lower.includes('location') || lower.includes('gps')) reply = botReplies[2];
+    else if (lower.includes('safe') || lower.includes('danger')) reply = botReplies[3];
+    else if (lower.includes('report')) reply = botReplies[4];
+    else if (lower.includes('thunder') || lower.includes('lightning')) reply = botReplies[5];
+    else if (lower.includes('humid') || lower.includes('hot')) reply = botReplies[6];
+    else reply = botReplies[Math.floor(Math.random() * botReplies.length)];
+
+    // Typing effect
     typeReply(reply);
+}
 
 function typeReply(text) {
     const box = document.getElementById('chatbox');
+
     let i = 0;
     let div = document.createElement("div");
     div.style.fontSize = "0.8rem";
@@ -236,6 +257,7 @@ function typeReply(text) {
         if (i > text.length) clearInterval(interval);
         box.scrollTop = box.scrollHeight;
     }, 20);
+}
 }
     const userMsg = input.value;
     input.value = "";
