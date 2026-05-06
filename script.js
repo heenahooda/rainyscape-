@@ -3,7 +3,7 @@
 //  All original features preserved + API key + improvements
 // ============================================================
 
-const API_KEY = "bd5e378503939ddaee76f12ad7a97608"; // Working OpenWeatherMap demo key
+const API_KEY = "423dd9118fa369878f3a7cc98796ee80"; // Working OpenWeatherMap demo key
 
 const translations = {
     en: { nav: "RainScape", head: "Check Weather", btn: "Check", report: "📡 Live Report", heat: "🔥 Flood Heatmap", bot: "How can I help?", safe: "Safe", risk: "Risk", chatH: "RainyBot 🤖" },
