@@ -1,645 +1,344 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RainyWay — AI Weather & Flood Intelligence</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RainScape Pro | AI Weather & Flood Safety</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet"/>
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- External libs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.9.6/lottie.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
 
-<!-- PARTICLES CANVAS -->
+<!-- ══════════════════════════════════════════
+     PARTICLE CANVAS (always behind everything)
+════════════════════════════════════════════ -->
 <canvas id="particleCanvas"></canvas>
-
-<!-- RAIN CANVAS -->
 <canvas id="rainCanvas"></canvas>
 
-<!-- LOGIN PAGE -->
-<div id="loginPage" class="page active">
-  <div class="login-wrapper">
+<!-- ══════════════════════════════════════════
+     LOGIN PAGE
+════════════════════════════════════════════ -->
+<div id="loginPage">
+  <div class="login-bg-layer"></div>
 
-    <!-- LEFT PANEL - BRAND HERO -->
-    <div class="login-hero">
-      <div class="hero-glow"></div>
-      <div class="hero-content">
-        <div class="brand-logo">
-          <div class="logo-ring">
-            <span class="logo-emoji">🌧️</span>
-          </div>
-          <div>
-            <h1 class="brand-name">RainyWay</h1>
-            <p class="brand-tagline">AI-Powered Weather Intelligence</p>
-          </div>
-        </div>
+  <!-- Animated rain streaks on login -->
+  <div id="loginRainLayer"></div>
 
-        <div class="hero-stats">
-          <div class="stat-card">
-            <span class="stat-num">99.2%</span>
-            <span class="stat-label">Accuracy</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-num">2M+</span>
-            <span class="stat-label">Users Safe</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-num">150+</span>
-            <span class="stat-label">Cities</span>
-          </div>
-        </div>
-
-        <div class="feature-pills">
-          <span class="pill">🛡️ Flood Safety</span>
-          <span class="pill">🗺️ Smart Routes</span>
-          <span class="pill">🤖 AI Advisor</span>
-          <span class="pill">📡 Live Radar</span>
-          <span class="pill">⚡ Real-time Alerts</span>
-          <span class="pill">🌍 Multilingual</span>
-        </div>
+  <!-- Hero Banner (top ~30%) -->
+  <div class="login-hero">
+    <div class="hero-aurora"></div>
+    <div class="hero-inner">
+      <div class="hero-logo-ring">
+        <div class="logo-pulse-outer"></div>
+        <div class="logo-pulse-inner"></div>
+        <span class="logo-emoji">🌧️</span>
       </div>
-      <!-- Floating weather icons -->
-      <div class="float-icon fi-1">⛈️</div>
-      <div class="float-icon fi-2">🌤️</div>
-      <div class="float-icon fi-3">❄️</div>
-      <div class="float-icon fi-4">🌈</div>
-      <div class="float-icon fi-5">💧</div>
+      <h1 class="hero-wordmark">RainScape<span class="hero-pro">PRO</span></h1>
+      <p class="hero-subtitle">AI-Powered Weather &amp; Flood Safety Platform</p>
+      <div class="hero-badges">
+        <span class="badge">🛰️ Real-time</span>
+        <span class="badge">🧠 AI-Powered</span>
+        <span class="badge">🗺️ Smart Routes</span>
+        <span class="badge">🆘 SOS Ready</span>
+      </div>
     </div>
+  </div>
 
-    <!-- RIGHT PANEL - FORM -->
-    <div class="login-form-panel">
-      <div class="form-card glass-deep">
-
-        <!-- STEP 1: CREDENTIALS -->
-        <div id="step1" class="form-step active">
-          <div class="form-header">
-            <h2>Welcome Back 👋</h2>
-            <p>Sign in to your RainyWay account</p>
-          </div>
-
-          <div class="input-field">
-            <span class="field-icon">👤</span>
-            <input id="name" type="text" placeholder="Your Name" autocomplete="name" />
-          </div>
-          <div class="input-field">
-            <span class="field-icon">📧</span>
-            <input id="contact" type="text" placeholder="Email or Phone" autocomplete="email" />
-          </div>
-
-          <div class="remember-row">
-            <label class="check-label">
-              <input type="checkbox" id="rememberMe" />
-              <span class="check-custom"></span>
-              Remember me
-            </label>
-            <a href="#" class="forgot-link">Forgot password?</a>
-          </div>
-
-          <button class="btn-primary btn-full" onclick="sendOTP()">
-            <span>Send OTP</span>
-            <span class="btn-arrow">→</span>
-            <div class="btn-ripple"></div>
-          </button>
-
-          <div class="divider"><span>or continue with</span></div>
-
-          <div class="social-row">
-            <button class="btn-social" onclick="socialLoginPlaceholder('Google')">
-              <span>G</span> Google
-            </button>
-            <button class="btn-social" onclick="socialLoginPlaceholder('GitHub')">
-              <span>⌥</span> GitHub
-            </button>
-          </div>
-        </div>
-
-        <!-- STEP 2: OTP -->
-        <div id="step2" class="form-step">
-          <div class="form-header">
-            <div class="otp-icon">🔐</div>
-            <h2>Verify OTP</h2>
-            <p id="otpSentMsg">OTP sent to your contact</p>
-          </div>
-
-          <div class="otp-boxes">
-            <input class="otp-box" type="text" maxlength="1" id="o1" oninput="otpNav(this,'o2')" />
-            <input class="otp-box" type="text" maxlength="1" id="o2" oninput="otpNav(this,'o3')" />
-            <input class="otp-box" type="text" maxlength="1" id="o3" oninput="otpNav(this,'o4')" />
-            <input class="otp-box" type="text" maxlength="1" id="o4" oninput="otpNav(this,null)" />
-          </div>
-
-          <div id="otpError" class="otp-error hidden">❌ Invalid OTP. Hint: 1-2-3-4</div>
-          <div id="otpTimer" class="otp-timer">Resend in <span id="timerCount">30</span>s</div>
-
-          <button class="btn-primary btn-full" onclick="verifyOTP()">
-            <span>Verify & Enter</span>
-            <span class="btn-arrow">🚀</span>
-          </button>
-
-          <button class="btn-ghost btn-full" onclick="goStep(1)">← Back</button>
-        </div>
-
-        <!-- STEP 3: LOADING -->
-        <div id="step3" class="form-step">
-          <div class="loading-screen">
-            <div class="loading-logo">🌧️</div>
-            <div class="loading-bar"><div id="loadProgress" class="load-fill"></div></div>
-            <p id="loadMsg" class="load-text">Connecting to weather systems...</p>
-          </div>
-        </div>
-
-        <div class="form-footer">
-          Secured with 💙 RainyWay Pro · v2.0
-        </div>
+  <!-- Login Card -->
+  <div class="login-card-wrap">
+    <div class="login-card">
+      <div class="lc-header">
+        <h2>Welcome Back <span class="wave-hand">👋</span></h2>
+        <p>Sign in to access your safety dashboard</p>
       </div>
+
+      <div class="field-group">
+        <span class="field-icon">👤</span>
+        <input id="loginName" type="text" placeholder="Your Name" class="rs-input"/>
+      </div>
+      <div class="field-group">
+        <span class="field-icon">📧</span>
+        <input id="loginContact" type="text" placeholder="Email / Phone" class="rs-input"/>
+      </div>
+
+      <button class="rs-btn-gradient w-full mt-2" onclick="sendOTP()">
+        Send OTP <span>→</span>
+      </button>
+
+      <div class="field-group mt-2">
+        <span class="field-icon">🔑</span>
+        <input id="loginOTP" type="text" placeholder="Enter OTP (demo: 1234)" class="rs-input"/>
+      </div>
+
+      <button class="rs-btn-glow w-full mt-2" onclick="doLogin()">
+        Enter RainScape 🌦️
+      </button>
+
+      <p class="login-hint">Demo credentials — OTP: <strong>1234</strong></p>
     </div>
   </div>
 </div>
 
-<!-- MAIN APP (Pages 2-4) -->
-<div id="mainApp" class="hidden">
+<!-- ══════════════════════════════════════════
+     MAIN APPLICATION
+════════════════════════════════════════════ -->
+<div id="app" class="hidden">
 
-  <!-- TOP NAVBAR -->
-  <nav class="top-nav glass-nav" id="topNav">
-    <div class="nav-brand">
-      <span class="nav-logo">🌧️</span>
-      <span class="nav-title">RainyWay</span>
+  <!-- NAV -->
+  <nav id="mainNav">
+    <div class="nav-left">
+      <span class="nav-logo-icon">🌧️</span>
+      <span id="navBrand" class="nav-brand">RainScape<span class="nav-pro-tag">PRO</span></span>
     </div>
     <div class="nav-tabs">
-      <button class="nav-tab active" data-page="dashboard" onclick="switchPage('dashboard')">
-        <span>🌤️</span> Dashboard
-      </button>
-      <button class="nav-tab" data-page="routes" onclick="switchPage('routes')">
-        <span>🗺️</span> Routes
-      </button>
-      <button class="nav-tab" data-page="disaster" onclick="switchPage('disaster')">
-        <span>⚡</span> Disaster Intel
-      </button>
+      <button class="nav-tab active" onclick="switchTab('dashboard')" data-tab="dashboard">🏠 Dashboard</button>
+      <button class="nav-tab" onclick="switchTab('routes')" data-tab="routes">🗺️ Smart Routes</button>
+      <button class="nav-tab" onclick="switchTab('disaster')" data-tab="disaster">⚠️ Disaster Intel</button>
     </div>
     <div class="nav-right">
       <div class="safety-badge" id="safetyBadge">
-        <div class="safety-dot"></div>
-        <span id="safetyText">95% Safe</span>
+        <span class="safety-dot"></span>
+        <span id="safetyLabel">30% Safe</span>
       </div>
-      <select id="language" onchange="changeLang()" class="lang-select">
-        <option value="en">🌐 EN</option>
-        <option value="hi">🇮🇳 HI</option>
-        <option value="es">🇪🇸 ES</option>
-        <option value="fr">🇫🇷 FR</option>
-        <option value="de">🇩🇪 DE</option>
-        <option value="zh">🇨🇳 ZH</option>
-        <option value="ja">🇯🇵 JA</option>
-        <option value="ru">🇷🇺 RU</option>
-        <option value="ar">🇸🇦 AR</option>
-        <option value="pt">🇧🇷 PT</option>
+      <select id="langSelect" onchange="changeLang()" class="lang-picker">
+        <option value="en">🌐 English</option>
+        <option value="hi">🇮🇳 हिंदी</option>
+        <option value="es">🇪🇸 Español</option>
+        <option value="fr">🇫🇷 Français</option>
+        <option value="de">🇩🇪 Deutsch</option>
+        <option value="zh">🇨🇳 中文</option>
+        <option value="ja">🇯🇵 日本語</option>
+        <option value="ru">🇷🇺 Русский</option>
+        <option value="ar">🇸🇦 العربية</option>
+        <option value="pt">🇧🇷 Português</option>
       </select>
-      <div class="nav-user" id="navUser">
-        <div class="user-avatar">👤</div>
-        <span id="navUserName">User</span>
-      </div>
     </div>
   </nav>
 
-  <!-- ===== PAGE 2: DASHBOARD ===== -->
-  <div id="page-dashboard" class="app-page active">
-    <div class="dashboard-grid">
+  <!-- ── TAB 1: DASHBOARD ── -->
+  <div id="tab-dashboard" class="tab-panel active">
+    <div class="dash-grid">
 
       <!-- LEFT SIDEBAR -->
       <aside class="dash-sidebar">
 
-        <!-- Weather Search Card -->
-        <div class="card glass-card">
-          <div class="card-header">
-            <span class="card-icon">🔍</span>
-            <h3 id="heading">Check Weather</h3>
-          </div>
+        <!-- Weather Card -->
+        <div class="rs-card" id="weatherCard">
+          <div class="card-label">🌡️ WEATHER CHECK</div>
+          <div id="lottieWeather" class="lottie-slot"></div>
           <div class="search-row">
-            <input id="locationInput" class="field-input" placeholder="Enter city..." />
-            <button class="btn-icon-sm" onclick="startVoice()" title="Voice Input">🎤</button>
-            <button class="btn-icon-sm" onclick="getLocation()" title="My Location">📍</button>
+            <div class="field-group flex-1 mb-0">
+              <span class="field-icon">🔍</span>
+              <input id="cityInput" type="text" placeholder="Enter city..." class="rs-input mb-0" onkeydown="if(event.key==='Enter')checkWeather()"/>
+            </div>
+            <button onclick="startVoice()" class="icon-btn" title="Voice">🎤</button>
+            <button onclick="getMyLocation()" class="icon-btn" title="GPS">📍</button>
           </div>
-          <button class="btn-primary btn-full mt-8" onclick="checkWeather()" id="checkBtn">
-            Check Weather
+          <button onclick="checkWeather()" id="checkWeatherBtn" class="rs-btn-gradient w-full mt-3">
+            🔍 Check Weather
           </button>
+          <div id="weatherResult" class="weather-result hidden"></div>
+          <div id="weatherAlert" class="weather-alert"></div>
+          <div class="risk-track mt-3">
+            <div class="risk-labels"><span>Low Risk</span><span>High Risk</span></div>
+            <div class="risk-bar-bg"><div id="riskBar" class="risk-bar-fill"></div></div>
+          </div>
+          <div id="weatherTip" class="weather-tip"></div>
+        </div>
 
-          <!-- Weather Result -->
-          <div id="weatherResult" class="weather-result hidden">
-            <div id="weatherDisplay"></div>
-            <div id="alertBox" class="alert-box"></div>
-            <div class="risk-bar-wrap">
-              <div class="risk-label">Flood Risk</div>
-              <div class="risk-track"><div id="riskBar" class="risk-fill"></div></div>
-            </div>
-            <div id="suggestion" class="suggestion-text"></div>
+        <!-- Forecast Strip -->
+        <div class="rs-card mt-3" id="forecastCard">
+          <div class="card-label">📅 5-DAY FORECAST</div>
+          <div id="forecastStrip" class="forecast-strip">
+            <div class="forecast-placeholder">Search a city to see forecast</div>
           </div>
         </div>
 
-        <!-- AQI Card -->
-        <div class="card glass-card mt-12">
-          <div class="card-header">
-            <span class="card-icon">🌬️</span>
-            <h3>Air Quality</h3>
-          </div>
-          <div id="aqiDisplay" class="aqi-display">
-            <div class="aqi-circle" id="aqiCircle">
-              <span id="aqiValue">--</span>
-              <small>AQI</small>
-            </div>
-            <div class="aqi-info">
-              <div id="aqiStatus" class="aqi-status">–</div>
-              <div id="aqiAdvice" class="aqi-advice">Check a city first</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Emergency Contacts -->
-        <div class="card glass-card mt-12">
-          <div class="card-header">
-            <span class="card-icon">🚨</span>
-            <h3>Emergency Contacts</h3>
-          </div>
-          <div class="emergency-grid">
-            <button class="em-btn" onclick="callEmergency('Police','100')">
-              <span>👮</span><span>Police</span><small>100</small>
-            </button>
-            <button class="em-btn" onclick="callEmergency('Ambulance','108')">
-              <span>🚑</span><span>Ambulance</span><small>108</small>
-            </button>
-            <button class="em-btn" onclick="callEmergency('Fire','101')">
-              <span>🚒</span><span>Fire Dept</span><small>101</small>
-            </button>
-            <button class="em-btn" onclick="callEmergency('Disaster','1078')">
-              <span>⛑️</span><span>Disaster</span><small>1078</small>
-            </button>
-          </div>
+        <!-- Quick Stats -->
+        <div class="stats-row mt-3">
+          <div class="stat-chip" id="statHumid">💧<br/><span>—</span><small>Humidity</small></div>
+          <div class="stat-chip" id="statWind">💨<br/><span>—</span><small>Wind</small></div>
+          <div class="stat-chip" id="statVis">👁️<br/><span>—</span><small>Visibility</small></div>
+          <div class="stat-chip" id="statUV">☀️<br/><span>—</span><small>UV Index</small></div>
         </div>
 
       </aside>
 
-      <!-- CENTER MAIN -->
-      <main class="dash-main">
-
-        <!-- AI Alert Banner -->
-        <div class="ai-alert-bar glass-card" id="aiAlertBar">
-          <span class="ai-badge">🤖 AI</span>
-          <marquee id="aiAlertText">Initializing AI weather intelligence system...</marquee>
-          <button class="alert-dismiss" onclick="this.parentElement.style.display='none'">✕</button>
+      <!-- MAP -->
+      <div class="dash-map-wrap">
+        <div id="mainMap"></div>
+        <div class="map-overlay-controls">
+          <button class="map-ctrl-btn active" onclick="toggleLayer('osm')" id="btn-osm">🗺️ Map</button>
+          <button class="map-ctrl-btn" onclick="toggleLayer('satellite')" id="btn-satellite">🛰️ Satellite</button>
+          <button class="map-ctrl-btn" onclick="toggleHeatmap()" id="btn-heat">🔥 Heatmap</button>
+          <button class="map-ctrl-btn" onclick="reportRain()" id="btn-report">📡 Report</button>
         </div>
-
-        <!-- Map -->
-        <div class="map-container glass-card">
-          <div id="map"></div>
-          <div class="map-overlay-badge" id="mapWeatherBadge">📍 Live Map</div>
+        <!-- Live ticker -->
+        <div class="live-ticker" id="liveTicker">
+          <span class="ticker-dot"></span>
+          <span id="tickerText">Live weather monitoring active — Enter a city to begin</span>
         </div>
+      </div>
 
-        <!-- Hourly Forecast -->
-        <div class="card glass-card mt-12">
-          <div class="card-header">
-            <span class="card-icon">⏱️</span>
-            <h3>24-Hour Forecast</h3>
-            <div class="card-actions">
-              <button class="tab-pill active" onclick="switchForecastTab('hourly',this)">Hourly</button>
-              <button class="tab-pill" onclick="switchForecastTab('weekly',this)">7-Day</button>
-            </div>
-          </div>
-          <div id="forecastHourly" class="forecast-scroll">
-            <div class="forecast-placeholder">Search a city to see forecasts</div>
-          </div>
-          <div id="forecastWeekly" class="forecast-scroll hidden"></div>
-        </div>
-
-      </main>
-
-      <!-- RIGHT PANEL -->
-      <aside class="dash-right">
-
-        <!-- Lottie / Animated Icon -->
-        <div class="card glass-card">
-          <div id="lottie-weather" class="lottie-wrap"></div>
-          <div id="weather" class="weather-big"></div>
-        </div>
-
-        <!-- AI Smart Alerts -->
-        <div class="card glass-card mt-12">
-          <div class="card-header">
-            <span class="card-icon">⚡</span>
-            <h3>AI Smart Alerts</h3>
-          </div>
-          <div id="smartAlerts" class="smart-alerts-list">
-            <div class="alert-item info">
-              <span>🤖</span>
-              <span>AI monitoring active. Check weather to see alerts.</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Nearby Safe Zones -->
-        <div class="card glass-card mt-12">
-          <div class="card-header">
-            <span class="card-icon">🏥</span>
-            <h3>Nearby Safe Zones</h3>
-          </div>
-          <div id="safeZones" class="safe-zones-list">
-            <div class="zone-item" onclick="findNearby('hospital')">🏥 Hospitals</div>
-            <div class="zone-item" onclick="findNearby('shelter')">⛺ Shelters</div>
-            <div class="zone-item" onclick="findNearby('fuel')">⛽ Fuel Stations</div>
-            <div class="zone-item" onclick="findNearby('parking')">🅿️ Safe Parking</div>
-          </div>
-        </div>
-
-        <!-- Globe container (kept from original) -->
-        <div class="card glass-card mt-12" id="globe-container" style="height:160px;overflow:hidden;position:relative;"></div>
-
-      </aside>
     </div>
   </div>
 
-  <!-- ===== PAGE 3: ROUTES ===== -->
-  <div id="page-routes" class="app-page">
-    <div class="routes-layout">
+  <!-- ── TAB 2: SMART ROUTES ── -->
+  <div id="tab-routes" class="tab-panel hidden">
+    <div class="routes-grid">
 
-      <!-- Route Search Panel -->
-      <div class="route-panel glass-deep">
-        <div class="route-panel-header">
-          <span>🗺️</span>
-          <h2>Smart Route Intelligence</h2>
-        </div>
+      <aside class="routes-sidebar">
+        <div class="rs-card">
+          <div class="card-label">🗺️ SMART ROUTE NAVIGATOR</div>
 
-        <div class="route-form">
-          <div class="route-field">
-            <div class="route-dot dot-green"></div>
-            <input id="routeFrom" class="field-input" placeholder="From: Source location" />
-            <button class="btn-icon-sm" onclick="useMyLocation()">📍</button>
-            <button class="btn-icon-sm" onclick="startVoiceRoute('from')">🎤</button>
+          <div class="field-group">
+            <span class="field-icon">🟢</span>
+            <input id="routeFrom" type="text" placeholder="From (source city/place)" class="rs-input"/>
           </div>
-          <div class="route-swap" onclick="swapLocations()">⇅</div>
-          <div class="route-field">
-            <div class="route-dot dot-red"></div>
-            <input id="routeTo" class="field-input" placeholder="To: Destination" />
-            <button class="btn-icon-sm" onclick="startVoiceRoute('to')">🎤</button>
+          <div class="field-group">
+            <span class="field-icon">🔴</span>
+            <input id="routeTo" type="text" placeholder="To (destination)" class="rs-input"/>
+          </div>
+
+          <div class="vehicle-row">
+            <button class="vehicle-btn active" onclick="selectVehicle(this,'car')" data-v="car">🚗 Car</button>
+            <button class="vehicle-btn" onclick="selectVehicle(this,'bike')" data-v="bike">🏍️ Bike</button>
+            <button class="vehicle-btn" onclick="selectVehicle(this,'walk')" data-v="walk">🚶 Walk</button>
+            <button class="vehicle-btn" onclick="selectVehicle(this,'bus')" data-v="bus">🚌 Bus</button>
+          </div>
+
+          <button class="rs-btn-gradient w-full mt-3" onclick="findRoutes()">
+            🔍 Find Safe Routes
+          </button>
+          <button class="rs-btn-outline w-full mt-2" onclick="useGPSRoute()">
+            📍 Use My GPS Location
+          </button>
+
+          <!-- Route Legend -->
+          <div class="route-legend mt-4">
+            <div class="card-label">🎨 ROUTE COLOR LEGEND</div>
+            <div class="legend-item"><span class="leg-dot" style="background:#3b82f6"></span> Safe Road</div>
+            <div class="legend-item"><span class="leg-dot" style="background:#eab308"></span> Mild Waterlogging</div>
+            <div class="legend-item"><span class="leg-dot" style="background:#ef4444"></span> Heavy Flooding</div>
+            <div class="legend-item"><span class="leg-dot" style="background:#111827"></span> Blocked / Closed</div>
+            <div class="legend-item"><span class="leg-dot" style="background:#f97316"></span> Traffic Congestion</div>
+            <div class="legend-item"><span class="leg-dot" style="background:#22c55e"></span> Emergency Safe Path</div>
           </div>
         </div>
-
-        <div class="vehicle-row">
-          <div class="vehicle-label">🚗 Vehicle:</div>
-          <div class="vehicle-chips">
-            <button class="v-chip active" data-v="bike" onclick="selectVehicle(this,'bike')">🚲</button>
-            <button class="v-chip" data-v="scooter" onclick="selectVehicle(this,'scooter')">🛵</button>
-            <button class="v-chip" data-v="sedan" onclick="selectVehicle(this,'sedan')">🚗</button>
-            <button class="v-chip" data-v="suv" onclick="selectVehicle(this,'suv')">🚙</button>
-            <button class="v-chip" data-v="truck" onclick="selectVehicle(this,'truck')">🚛</button>
-            <button class="v-chip" data-v="emergency" onclick="selectVehicle(this,'emergency')">🚑</button>
-          </div>
-        </div>
-
-        <button class="btn-primary btn-full" onclick="findRoutes()">
-          🔍 Find Safe Routes
-        </button>
 
         <!-- Route Results -->
-        <div id="routeResults" class="route-results hidden">
-          <div class="results-header">
-            <h3>🛣️ Available Routes</h3>
-            <div class="route-legend">
-              <span class="leg safe">● Safe</span>
-              <span class="leg mild">● Mild</span>
-              <span class="leg heavy">● Heavy</span>
-              <span class="leg danger">● Danger</span>
-            </div>
-          </div>
-          <div id="routeCards" class="route-cards-list"></div>
-        </div>
+        <div id="routeResults" class="route-results mt-3"></div>
+      </aside>
 
-        <!-- Flood Heatmap & Live Report (moved from Page 2) -->
-        <div class="flood-actions mt-16">
-          <div class="flood-actions-header">
-            <span>📡</span> Community Intelligence
-          </div>
-          <div class="flood-action-cards">
-            <div class="flood-action-card" onclick="openDisasterPage('heatmap')">
-              <div class="fa-icon">🔥</div>
-              <div class="fa-title">Flood Heatmap</div>
-              <div class="fa-desc">Live flood zones & intensity</div>
-              <div class="fa-arrow">→</div>
-            </div>
-            <div class="flood-action-card" onclick="openDisasterPage('report')">
-              <div class="fa-icon">📡</div>
-              <div class="fa-title">Live Report</div>
-              <div class="fa-desc">Community flood reports</div>
-              <div class="fa-arrow">→</div>
-            </div>
-          </div>
+      <div class="routes-map-wrap">
+        <div id="routeMap"></div>
+        <div class="route-map-info glass-panel" id="routeMapInfo">
+          <span>Enter source and destination, then click <strong>Find Safe Routes</strong></span>
         </div>
-      </div>
-
-      <!-- Route Map -->
-      <div class="route-map-container">
-        <div id="routeMap" class="route-map"></div>
-        <div class="map-legend glass-mini">
-          <div class="legend-title">Road Status</div>
-          <div class="legend-item"><div class="l-dot" style="background:#3b82f6"></div> Safe</div>
-          <div class="legend-item"><div class="l-dot" style="background:#eab308"></div> Mild waterlogging</div>
-          <div class="legend-item"><div class="l-dot" style="background:#ef4444"></div> Heavy waterlogging</div>
-          <div class="legend-item"><div class="l-dot" style="background:#1a1a1a"></div> Blocked</div>
-          <div class="legend-item"><div class="l-dot" style="background:#f97316"></div> Slow traffic</div>
-          <div class="legend-item"><div class="l-dot" style="background:#a855f7"></div> Storm risk</div>
-          <div class="legend-item"><div class="l-dot" style="background:#10b981"></div> Emergency route</div>
-        </div>
-        <div id="routeDetailPanel" class="route-detail-panel glass-deep hidden"></div>
       </div>
     </div>
   </div>
 
-  <!-- ===== PAGE 4: DISASTER INTEL ===== -->
-  <div id="page-disaster" class="app-page">
-    <div class="disaster-layout">
+  <!-- ── TAB 3: DISASTER INTEL ── -->
+  <div id="tab-disaster" class="tab-panel hidden">
+    <div class="disaster-grid">
 
-      <!-- Mode Toggle -->
-      <div class="disaster-header glass-card">
-        <div class="disaster-title">
-          <span class="disaster-icon">⚡</span>
-          <h2>Disaster Intelligence Center</h2>
-          <div class="disaster-live-badge">● LIVE</div>
+      <!-- Left panels -->
+      <div class="disaster-left">
+
+        <!-- Flood Heatmap Card -->
+        <div class="rs-card">
+          <div class="card-label">🔥 FLOOD HEATMAP</div>
+          <div id="disasterMap" class="disaster-map-slot"></div>
+          <div class="heatmap-controls mt-2">
+            <button class="rs-btn-sm active" onclick="toggleDisasterLayer('flood')">🌊 Flood Zones</button>
+            <button class="rs-btn-sm" onclick="toggleDisasterLayer('rain')">🌧️ Rainfall</button>
+            <button class="rs-btn-sm" onclick="toggleDisasterLayer('danger')">⚠️ Danger Zones</button>
+          </div>
         </div>
-        <div class="disaster-mode-tabs">
-          <button class="d-tab active" id="heatmapTab" onclick="switchDisasterMode('heatmap')">
-            🔥 Flood Heatmap
-          </button>
-          <button class="d-tab" id="reportTab" onclick="switchDisasterMode('report')">
-            📡 Live Reports
-          </button>
-          <button class="d-tab" id="radarTab" onclick="switchDisasterMode('radar')">
-            🌀 Weather Radar
-          </button>
-          <button class="d-tab" id="timelineTab" onclick="switchDisasterMode('timeline')">
-            📈 Disaster Timeline
-          </button>
+
+        <!-- Rainfall Intensity -->
+        <div class="rs-card mt-3">
+          <div class="card-label">🌧️ RAINFALL INTENSITY MONITOR</div>
+          <div id="rainfallChart" class="rainfall-chart">
+            <div class="chart-bars" id="chartBars"></div>
+            <div class="chart-labels" id="chartLabels"></div>
+          </div>
         </div>
+
       </div>
 
-      <div class="disaster-content">
+      <!-- Right panels -->
+      <div class="disaster-right">
 
-        <!-- HEATMAP MODE -->
-        <div id="disasterHeatmap" class="disaster-mode active">
-          <div class="disaster-map-wrap">
-            <div id="disasterMap" class="disaster-map"></div>
-            <div class="disaster-map-controls glass-mini">
-              <button class="dc-btn active" onclick="toggleFloodLayer()">🌊 Flood Zones</button>
-              <button class="dc-btn" onclick="toggleRainLayer()">🌧️ Rain Intensity</button>
-              <button class="dc-btn" onclick="toggleAccidentLayer()">⚠️ Accidents</button>
-            </div>
-          </div>
-          <div class="disaster-side">
-            <div class="card glass-card">
-              <div class="card-header"><span>🤖</span><h3>AI Flood Prediction</h3></div>
-              <div id="aiFloodPred" class="ai-pred-list">
-                <div class="pred-item high">
-                  <div class="pred-zone">Zone Alpha</div>
-                  <div class="pred-risk">HIGH RISK</div>
-                  <div class="pred-time">Peak: 6-8 PM today</div>
-                </div>
-                <div class="pred-item medium">
-                  <div class="pred-zone">Zone Beta</div>
-                  <div class="pred-risk">MODERATE</div>
-                  <div class="pred-time">Peak: Tomorrow morning</div>
-                </div>
-                <div class="pred-item low">
-                  <div class="pred-zone">Zone Gamma</div>
-                  <div class="pred-risk">LOW RISK</div>
-                  <div class="pred-time">Stable for 48h</div>
-                </div>
-              </div>
-            </div>
-            <div class="card glass-card mt-12">
-              <div class="card-header"><span>📊</span><h3>Flood Spread Simulation</h3></div>
-              <div id="floodSimCanvas" class="flood-sim">
-                <canvas id="simCanvas" width="280" height="180"></canvas>
-              </div>
-            </div>
+        <!-- Live Community Reports -->
+        <div class="rs-card">
+          <div class="card-label">📡 LIVE COMMUNITY REPORTS</div>
+          <div id="communityFeed" class="community-feed"></div>
+          <div class="report-input-row mt-3">
+            <input id="reportInput" type="text" placeholder="Report flooding / road condition..." class="rs-input mb-0 flex-1"/>
+            <button onclick="submitReport()" class="rs-btn-gradient px-4">📤</button>
           </div>
         </div>
 
-        <!-- LIVE REPORT MODE -->
-        <div id="disasterReport" class="disaster-mode">
-          <div class="disaster-reports-grid">
-            <div class="reports-feed">
-              <div class="feed-header">
-                <h3>📡 Community Reports</h3>
-                <button class="btn-primary btn-sm" onclick="submitReport()">+ Submit Report</button>
-              </div>
-              <div id="reportsFeed" class="reports-list"></div>
-            </div>
-            <div class="report-submit glass-card">
-              <div class="card-header"><span>📝</span><h3>Submit Report</h3></div>
-              <select class="field-input mb-8" id="reportType">
-                <option value="flood">🌊 Flooding</option>
-                <option value="waterlog">💧 Waterlogging</option>
-                <option value="blocked">🚧 Road Blocked</option>
-                <option value="accident">🚗 Accident</option>
-                <option value="storm">⛈️ Storm</option>
-              </select>
-              <input class="field-input mb-8" id="reportLocation" placeholder="Location / Area" />
-              <select class="field-input mb-8" id="reportSeverity">
-                <option value="low">🟢 Low Severity</option>
-                <option value="medium">🟡 Medium Severity</option>
-                <option value="high">🔴 High Severity</option>
-                <option value="extreme">⚫ Extreme / Emergency</option>
-              </select>
-              <textarea class="field-input mb-8" id="reportDesc" placeholder="Describe the situation..." rows="3"></textarea>
-              <button class="btn-primary btn-full" onclick="submitReport()">📡 Submit Live Report</button>
-            </div>
-          </div>
+        <!-- Safety Recommendations -->
+        <div class="rs-card mt-3">
+          <div class="card-label">🛡️ SAFETY RECOMMENDATIONS</div>
+          <div id="safetyRecs" class="safety-recs"></div>
         </div>
 
-        <!-- RADAR MODE -->
-        <div id="disasterRadar" class="disaster-mode">
-          <div class="radar-layout">
-            <div class="radar-wrap glass-card">
-              <div class="radar-header">🌀 Doppler Weather Radar</div>
-              <div id="radarMap" class="radar-map"></div>
-              <div class="radar-legend">
-                <span style="color:#3b82f6">● Light rain</span>
-                <span style="color:#22d3ee">● Moderate</span>
-                <span style="color:#eab308">● Heavy</span>
-                <span style="color:#ef4444">● Extreme</span>
-              </div>
-            </div>
-            <div class="radar-side">
-              <div class="card glass-card">
-                <div class="card-header"><span>📻</span><h3>Emergency Broadcast</h3></div>
-                <div id="emergencyBroadcast" class="broadcast-list">
-                  <div class="broadcast-item red">
-                    <div class="bc-time">NOW</div>
-                    <div class="bc-msg">Heavy rainfall alert — Delhi NCR region</div>
-                  </div>
-                  <div class="broadcast-item orange">
-                    <div class="bc-time">2h ago</div>
-                    <div class="bc-msg">Road closures reported near NH-48</div>
-                  </div>
-                  <div class="broadcast-item yellow">
-                    <div class="bc-time">4h ago</div>
-                    <div class="bc-msg">Waterlogging in low-lying areas</div>
-                  </div>
-                </div>
-              </div>
-              <div class="card glass-card mt-12">
-                <div class="card-header"><span>🛰️</span><h3>Satellite Overlay</h3></div>
-                <div class="satellite-info">
-                  <div class="sat-row"><span>Cloud Cover</span><div class="sat-bar"><div style="width:72%" class="sat-fill cyan"></div></div></div>
-                  <div class="sat-row"><span>Rainfall</span><div class="sat-bar"><div style="width:55%" class="sat-fill blue"></div></div></div>
-                  <div class="sat-row"><span>Wind Speed</span><div class="sat-bar"><div style="width:40%" class="sat-fill green"></div></div></div>
-                  <div class="sat-row"><span>Pressure</span><div class="sat-bar"><div style="width:65%" class="sat-fill purple"></div></div></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- TIMELINE MODE -->
-        <div id="disasterTimeline" class="disaster-mode">
-          <div class="timeline-layout glass-card">
-            <div class="timeline-header">
-              <h3>📈 Disaster Timeline — Last 24 Hours</h3>
-            </div>
-            <div id="disasterTimelineList" class="timeline-list"></div>
-          </div>
+        <!-- Crowd Alerts -->
+        <div class="rs-card mt-3">
+          <div class="card-label">👥 CROWD ALERTS &amp; DANGER ZONES</div>
+          <div id="crowdAlerts" class="crowd-alerts"></div>
         </div>
 
       </div>
     </div>
   </div>
 
-</div><!-- end mainApp -->
+  <!-- SOS FAB -->
+  <button class="sos-fab" onclick="triggerSOS()" title="Emergency SOS">🆘</button>
 
-<!-- FLOATING SOS BUTTON -->
-<button class="sos-fab" onclick="triggerSOS()" id="sosFab">🆘 SOS</button>
+  <!-- Chat toggle -->
+  <button class="chat-fab" onclick="toggleChat()" title="RainyBot AI">💬</button>
 
-<!-- AI CHATBOT -->
-<button class="chat-toggle" onclick="toggleChat()" id="chatToggle">💬</button>
-<div id="chatWindow" class="chatbot glass-deep hidden">
-  <div class="chat-header" id="chatHeader">
-    <div class="chat-header-info">
-      <span class="chat-avatar">🤖</span>
-      <div>
-        <div class="chat-name">RainyBot AI</div>
-        <div class="chat-status">● Online</div>
-      </div>
+  <!-- Chatbot Window -->
+  <div id="chatWindow" class="chat-window hidden">
+    <div class="chat-header-bar">
+      <span>🤖 RainyBot AI</span>
+      <button onclick="toggleChat()" class="chat-close">✕</button>
     </div>
-    <button class="chat-close" onclick="toggleChat()">✕</button>
+    <div id="chatMessages" class="chat-messages"></div>
+    <div class="chat-input-row">
+      <input id="chatInput" type="text" placeholder="Ask about weather, routes, safety..." class="rs-input-dark" onkeydown="if(event.key==='Enter')sendChat()"/>
+      <button onclick="sendChat()" class="chat-send">➔</button>
+    </div>
   </div>
-  <div id="chatbox" class="chatbox-body"></div>
-  <div class="chat-input-row">
-    <button class="btn-icon-sm" onclick="startVoiceChat()">🎤</button>
-    <input id="chatInput" class="chat-field" placeholder="Ask about weather, routes, safety..." />
-    <button class="btn-send" onclick="sendMessage()">➤</button>
-  </div>
-</div>
-<!-- SCRIPTS -->
+
+</div><!-- /app -->
+
+<!-- Scripts — order matters -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-
-<script src="script.js"></script>
-<!-- SCRIPTS -->
-
+<script src="assets/js/particles.js"></script>
+<script src="assets/js/weather.js"></script>
+<script src="assets/js/routes.js"></script>
+<script src="assets/js/disaster.js"></script>
+<script src="assets/js/chatbot.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
